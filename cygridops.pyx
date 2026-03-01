@@ -17,16 +17,16 @@ def shiftgrid(grid, dx, dy):
     return newgrid
 def firstcell(grid):
     '''Find the first cell in a grid.'''
-    cdef array whys = [coord[1] for coord in grid]
+    cdef list whys = [coord[1] for coord in grid]
     cdef int topcoord = min(whys)
-    cdef array exes =  [coord[0] for coord in grid if coord[1] == topcoord]
+    cdef list exes =  [coord[0] for coord in grid if coord[1] == topcoord]
     cdef int leftcoord = min(exes)
     return (leftcoord, topcoord)
 def transformgrid(grid, transformation):
     '''Apply a transformation to a grid.'''
     grid = cleanupgrid(grid)
     newgrid = {}
-    cdef const array transformations=['flip_x','flip_y','identity','rot_90','rot_180','rot_270','flip_xy','rcw','rccw']
+    transformations=['flip_x','flip_y','identity','rot_90','rot_180','rot_270','flip_xy','rcw','rccw']
     if transformation not in transformations:
         raise ValueError('Only the following transformations are supported: '+str(transformations))
     if transformation ==  'flip_x':
@@ -54,8 +54,8 @@ def getbbox(grid):
     if len(grid) == 0:
         #Empty patterns do not have a proper bounding box.
         return None
-    cdef array exes = [c[0] for c in grid]
-    cdef array whys = [c[1] for c in grid]
+    cdef list exes = [c[0] for c in grid]
+    cdef list whys = [c[1] for c in grid]
 
     cdef int x = min(exes)
     cdef int y = min(whys)
@@ -119,7 +119,7 @@ def getgridapgcode(grid):
     #To my future self:
     #This function is a mess, but if all else fails,
     #Check apgsearch Py3 code to understand how it works.
-    cdef const char *characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+    characters = '0123456789abcdefghijklmnopqrstuvwxyz'
     grid = cleanupgrid(grid)
     grid = defaultshiftgrid(grid)
     #Empty grids have no live cells:
@@ -128,7 +128,7 @@ def getgridapgcode(grid):
     #Get the bounding box of the pattern:
     bbox = getbbox(grid)
     x, y, dx, dy = bbox[0], bbox[1], bbox[2], bbox[3]
-    cdef char *apgcode = ''
+    apgcode = ''
     for w in range((dy - 1)//5 + 1):
         if w != 0:
             apgcode += 'z'
@@ -165,7 +165,7 @@ def apgcodetogrid(apgcode):
     cdef int ypos = 0
     cdef int readpos = 0
     grid = {}
-    cdef const char *characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+    characters = '0123456789abcdefghijklmnopqrstuvwxyz'
     apgcode = apgcode[apgcode.find('_')+1:]
     #Convert special characters to zeroes:
     for x in range(35, -1, -1):

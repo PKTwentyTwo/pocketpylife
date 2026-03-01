@@ -1,11 +1,11 @@
 '''A Python package for manipulation of patterns in cellular automata. '''
 import os
 #Check for .so and .pyd files:
-localfiles = os.listdir(os.getcwd())
+localfiles = os.listdir(os.path.dirname(__file__))
 localfiles = [x for x in localfiles if x.endswith('.pyd') or x.endswith('.so')]
 if 'cylifetree.so' in localfiles or 'cylifetree.pyd' in localfiles:
     try:
-        from cylifetree import Lifetree
+        from .cylifetree import Lifetree
         lifetree = Lifetree
     except ImportError:
         raise Warning('''Failed to import from compiled package!

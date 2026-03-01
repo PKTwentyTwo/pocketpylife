@@ -26,9 +26,14 @@ def remove_cython_compilation():
         os.remove(dirloc + '/' + n)
     print('Successfully removed '+str(total)+' files.')
 if __name__ == '__main__':
-    #Create a .pyx file:
+    #Delete any  old files:
     oldcwd = os.getcwd()
     os.chdir(os.path.dirname(__file__))
+    files = os.listdir(os.getcwd())
+    files = [x for x in files if x.endswith('.so') or x.endswith('.pyd')]
+    for x in files:
+        os.remove(x)
+    #Create a .pyx file:
     compilerargs = ["-O3", "-march=native", "-ffast-math"]
     if platform.uname()[0] == 'Windows':
         compilerargs = ['/O2']
@@ -55,7 +60,7 @@ if __name__ == '__main__':
     )
     #Rename the output file:
     files = os.listdir(os.getcwd())
-    files = [x for x in files if x.endswith('.so') or x.endswith('.pyd')]
+    files = [x for x in files if (x.endswith('.so') or x.endswith('.pyd')) and x.startswith('cylifetree')]
     if len(files) == 0:
         raise FileNotFoundError('Could not locate compiled .so or .pyd!')
     file = files[0]
@@ -67,5 +72,50 @@ if __name__ == '__main__':
         code = f.read()
     with open('cylifetree' + extension, 'wb') as f:
         f.write(code)
-    os.chdir(oldcwd)
+    os.remove(file)
+    #Next, compile the gridops file:
+    compilerargs = ["-O3", "-march=native", "-ffast-math"]
+    if platform.uname()[0] == 'Windows':
+        compilerargs = ['/O2']
+    extensions = [
+        Extension(
+            name="cygridops",
+            sources=["cygridops.pyx"],
+            language="c",
+            extra_compile_args=compilerargs,
+        )
+    ]
 
+    setup(
+        name="cygridops",
+        ext_modules=cythonize(
+            extensions,
+            compiler_directives={
+                "language_level": "3",
+                "boundscheck": False,
+                "wraparound": False,
+                "cdivision": True
+            }
+        ),
+    )
+    #Rename the output file:
+    files = os.listdir(os.getcwd())
+    files = [x for x in files if (x.endswith('.so') or x.endswith('.pyd')) and x.startswith('cygridops')]
+    if len(files) == 0:
+        raise FileNotFoundError('Could not locate compiled .so or .pyd!')
+    file = files[0]
+    if file.endswith('.so'):
+        extension = '.so'
+    else:
+        extension = '.pyd'
+    with open(file, 'rb') as f:
+        code = f.read()
+    with open('cygridops' + extension, 'wb') as f:
+        f.write(code)
+    os.remove(file)
+    #Clean up the C files:
+    if os.path.isfile('cylifetree.c'):
+        os.remove('cylifetree.c')
+    if os.path.isfile('cygridops.c'):
+        os.remove('cygridops.c')
+    os.chdir(oldcwd)
