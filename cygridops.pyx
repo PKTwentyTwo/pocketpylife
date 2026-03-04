@@ -1,28 +1,28 @@
 '''Some operations for the grid storage method to save time.'''
 import hashlib
-def cleanupgrid(grid):
+cpdef cleanupgrid(dict grid):
     '''Removes all non-zero coordinates from the grid.'''
-    newgrid = {}
+    cdef dict newgrid = {}
     for x in grid:
         if grid[x] != 0:
             newgrid[x] = 1
     return newgrid
-def shiftgrid(grid, dx, dy):
+cpdef shiftgrid(dict grid, int dx, int dy):
     '''Translate a grid by a given quantity.'''
     grid = cleanupgrid(grid)
-    newgrid = {}
+    cdef dict newgrid = {}
     for x, y in grid:
         if grid[(x, y)] != 0:
             newgrid[(x + dx, y + dy)] = 1
     return newgrid
-def firstcell(grid):
+cpdef firstcell(dict grid):
     '''Find the first cell in a grid.'''
     cdef list whys = [coord[1] for coord in grid]
     cdef int topcoord = min(whys)
     cdef list exes =  [coord[0] for coord in grid if coord[1] == topcoord]
     cdef int leftcoord = min(exes)
     return (leftcoord, topcoord)
-def transformgrid(grid, transformation):
+cpdef transformgrid(dict grid, str transformation):
     '''Apply a transformation to a grid.'''
     grid = cleanupgrid(grid)
     newgrid = {}
@@ -48,7 +48,7 @@ def transformgrid(grid, transformation):
     elif transformation ==  'rccw':
         newgrid = {(y, -x):1 for x, y in grid}
     return newgrid
-def getbbox(grid):
+cpdef getbbox(dict grid):
     '''Returns the bounding box of a grid in the form [x, y, dx, dy].'''
     grid = cleanupgrid(grid)
     if len(grid) == 0:
@@ -62,39 +62,39 @@ def getbbox(grid):
     cdef int dx = max(exes) - x + 1
     cdef int dy = max(whys) - y + 1
     return [x, y, dx, dy]
-def sha1(instring):
+cpdef sha1(str instring):
     '''Return an integer representation of the SHA-1 hash of a string.'''
     hashed = hashlib.sha1(instring.encode('utf-8')).digest()
-    cdef int totalint = 0
+    totalint = 0
     for x in range(20):
         totalint += (256**x) * hashed[x]
     return totalint
-def defaultshiftgrid(grid):
+cpdef defaultshiftgrid(dict grid):
     '''Move a grid so that all coordinates are non-negative.'''
     grid = cleanupgrid(grid)
     bbox = getbbox(grid)
     return shiftgrid(grid, -bbox[0], -bbox[1])
-def calcdigest(grid):
+cpdef calcdigest(dict grid):
     '''Returns a digest of a grid, dependent on rotation and reflection but not absolute position.'''
     grid = defaultshiftgrid(grid)
-    cdef int total = 0
+    total = 0
     for x in grid:
         total += sha1(str(x))
     return total
-def calcoctodigest(grid):
+cpdef calcoctodigest(dict grid):
     '''Returns a digest of a grid, independent of rotation, reflection, and position.'''
-    cdef int total = 0
+    total = 0
     transformgrided = [grid, transformgrid(grid, 'rot_90'), transformgrid(grid, 'rot_180'), transformgrid(grid, 'rot_270')]
     transformgrided += [transformgrid(transformgrid(grid, 'flip_x'), 'rot_90'), transformgrid(transformgrid(grid, 'flip_x'), 'rot_180'), transformgrid(transformgrid(grid, 'flip_x'), 'rot_270'), transformgrid(transformgrid(grid, 'flip_x'), 'identity')]
     for x in transformgrided:
         total += calcdigest(x)
     return total
-def applyop(grid1, grid2, operation):
+cpdef applyop(dict grid1, dict grid2, str operation):
     '''Applies an operation to two grids.'''
     grid1 = cleanupgrid(grid1)
     grid2 = cleanupgrid(grid2)
     operation = operation.lower()
-    newgrid = {}
+    cdef dict newgrid = {}
     set1 = set(grid1)
     set2 = set(grid2)
     if operation ==  'add':
@@ -112,7 +112,7 @@ def getcell(grid, tupleused):
     if tupleused in grid:
         return 1
     return 0
-def getgridapgcode(grid):
+cpdef getgridapgcode(dict grid):
     '''Finds the apgcode of a grid.'''
     #Documentation of apgcode format can be found at:
     #https://conwaylife.com/wiki/Apgcode
@@ -127,8 +127,9 @@ def getgridapgcode(grid):
         return '0'
     #Get the bounding box of the pattern:
     bbox = getbbox(grid)
+    cdef int x, y, dx, dy
     x, y, dx, dy = bbox[0], bbox[1], bbox[2], bbox[3]
-    apgcode = ''
+    cdef str apgcode = ''
     for w in range((dy - 1)//5 + 1):
         if w != 0:
             apgcode += 'z'
@@ -159,7 +160,7 @@ def getgridapgcode(grid):
         while apgcode.count(z + 'z') > 0:
             apgcode = apgcode.replace(z + 'z', 'z')
     return apgcode
-def apgcodetogrid(apgcode):
+cpdef apgcodetogrid(str apgcode):
     '''Converts an apgcode to a grid.'''
     cdef int xpos = 0
     cdef int ypos = 0
@@ -190,12 +191,12 @@ def apgcodetogrid(apgcode):
             ypos += 5
         readpos += 1
     return grid
-def getorientations(grid):
+cpdef getorientations(dict grid):
     '''Return all 8 transformations of a grid.'''
     transformed = [grid, transformgrid(grid, 'rot_90'), transformgrid(grid, 'rot_180'), transformgrid(grid, 'rot_270')]
     transformed += [transformgrid(transformgrid(grid, 'flip_x'), 'rot_90'), transformgrid(transformgrid(grid, 'flip_x'), 'rot_180'), transformgrid(transformgrid(grid, 'flip_x'), 'rot_270'), transformgrid(transformgrid(grid, 'flip_x'), 'identity')]
     return transformed
-def compareapgcode(code1, code2):
+cpdef compareapgcode(str code1, str code2):
     '''Compares two apgcodes, prioritising length first and using alphabetical order for tie-breaking.'''
     if code1 == code2:
         return code1

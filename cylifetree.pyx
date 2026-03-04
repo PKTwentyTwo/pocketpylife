@@ -24,7 +24,7 @@ class Lifetree:
         self.__file__ = __file__
     def getneighbours(self, grid):
         '''For each cell with at least one live neighbour, get a 9-bit integer.'''
-        neighbours = {}
+        cdef dict neighbours = {}
         for x in grid:
             xcor, ycor = x[0], x[1]
             for a in range(3):
@@ -37,7 +37,7 @@ class Lifetree:
     def advanceone(self, grid):
         '''Advance a grid of cells by one generation.'''
         neighbours = self.getneighbours(grid)
-        newgrid = {}
+        cdef dict newgrid = {}
         for x in neighbours:
             if neighbours[x] in self.conditionset:
                 newgrid[x] = 1
@@ -52,7 +52,7 @@ class Lifetree:
         '''Converts an RLE to a dictionary format.'''
         cdef int x = 0
         cdef int y = 0
-        grid = {}
+        cdef dict grid = {}
         cdef int position = -1
         cdef list digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
         cstring = ''
