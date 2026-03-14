@@ -6,8 +6,10 @@ import urllib.request
 import hashlib
 #Other project modules:
 try:
-    from .hensel import RuleHandler
+    from .genera.hensel import RuleHandler
 except ImportError:
+    import os, sys
+    sys.path.append(os.path.dirname(__file__) + '/genera')
     from hensel import RuleHandler
 try:
     from .gridops import *

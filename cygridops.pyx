@@ -15,6 +15,33 @@ cpdef shiftgrid(dict grid, int dx, int dy):
         if grid[(x, y)] != 0:
             newgrid[(x + dx, y + dy)] = 1
     return newgrid
+cpdef slicegrid(dict grid, int x, int y, int dx, int dy):
+    '''Slices a grid.'''
+    cdef dict newgrid = {}
+    cdef int max_x = x + dx - 1
+    cdef int max_y = y + dy - 1
+    print('Params being passed:')
+    print(x, y, dx, dy)
+    print('Max x and max y:')
+    print(max_x, max_y)
+    for t in grid:
+        if t[0] < x or t[0] > max_x:
+            continue
+        if t[1] < y or t[1] > max_y:
+            continue
+        newgrid[t] = 1
+    return newgrid
+cpdef hashgrid(dict grid, cell):
+    '''Returns an SHA-1 hexdigest of a grid.'''
+    fcell = firstcell(grid)
+    cdef list cells = []
+    for t in grid:
+        cells.append((t[0] - cell[0], t[1] - cell[1]))
+    cells.sort()
+    cells = [str(x) for x in cells]
+    cellstring = ''.join(cells)
+    digest = hashlib.sha1(cellstring.encode('utf-8')).hexdigest()
+    return digest
 cpdef firstcell(dict grid):
     '''Find the first cell in a grid.'''
     cdef list whys = [coord[1] for coord in grid]

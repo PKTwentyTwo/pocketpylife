@@ -21,5 +21,5 @@ try:
     __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation', 'tabletree']
 except ImportError:
     __all__ = ['lifetree', 'tabletree']
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 

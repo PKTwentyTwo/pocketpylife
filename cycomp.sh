@@ -1,1 +1,1 @@
-$(which python) cython_setup.py build_ext --inplace
+$(which python3) cython_setup.py build_ext --inplace

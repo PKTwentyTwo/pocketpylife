@@ -4,10 +4,11 @@ import copy
 import math
 import urllib.request
 import hashlib
+import os
 import sys
 #Other project modules:
 try:
-    from .ruleloader import compile_rule
+    from .genera.ruleloader import compile_rule
 except ImportError:
     from ruleloader import compile_rule
 
@@ -23,6 +24,7 @@ class Lifetree:
         self.rule, self.layers = compile_rule(ruletable)
         self.layers = int(self.layers) - 1
         sys.path.append(os.path.dirname(__file__))
+        sys.path.append(os.path.dirname(__file__)+'/genera')
         customrulesim = __import__('customrulesim')
         self.advancecell = customrulesim.advancecell
         self.__file__ = __file__
@@ -146,7 +148,7 @@ class Lifetree:
         rle = rle[:-1]
         rle += '!'
         #Compress the RLE:
-        operators = ['o', 'b', '$', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+        operators = ['.', '$', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
         for x in operators:
             longestchain = 1
             while rle.count(x * (longestchain)) > 0:
@@ -273,7 +275,7 @@ class Lifetree:
         if datatype == 'rle':
             grid = self.rle_to_grid(data)
         elif datatype == 'apgcode':
-            grid = apgcodetogrid(data)
+            grid = apgcodetogrid2(data)
         else:
             grid = data
         pt = Pattern(self, grid)
@@ -485,7 +487,7 @@ class Pattern:
             gridphases2 += getorientations(x)
         canonicalapgcode = 'Z'*10000
         for x in gridphases2:
-            canonicalapgcode = compareapgcode(canonicalapgcode, getgridapgcode(x))
+            canonicalapgcode = compareapgcode(canonicalapgcode, getgridapgcode2(x, self.lifetree.layers))
         if period == 1:
             prefix = 'xs' + str(self.population) + '_'
         else:
@@ -495,9 +497,3 @@ class Pattern:
                 prefix = 'xp' + str(period) + '_'
         
         return prefix + canonicalapgcode
-lt = Lifetree()
-pt = lt.pattern('ooo!')
-pt = pt[2]
-print(pt.rle)
-print(pt[1].rle)
-print(pt.period)

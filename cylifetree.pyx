@@ -4,10 +4,13 @@ import copy
 import math
 import urllib.request
 import hashlib
+import random
 #Other project modules:
 try:
-    from .hensel import RuleHandler
+    from .genera.hensel import RuleHandler
 except ImportError:
+    import os, sys
+    sys.path.append(os.path.dirname(__file__)+'/genera')
     from hensel import RuleHandler
 try:
     from .cygridops import *
@@ -22,6 +25,8 @@ class Lifetree:
         self.rule = self.rulehandler.canoniserule(rule)
         self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
+        cdef dict digestdict = {}
+        self.digestdict = digestdict
     def getneighbours(self, grid):
         '''For each cell with at least one live neighbour, get a 9-bit integer.'''
         cdef dict neighbours = {}
