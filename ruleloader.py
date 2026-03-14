@@ -1,4 +1,7 @@
 '''Handles the parsing of custom rules.'''
+#The way custom rules are simuulated is using customrulesim.py, which is automatically generated using code from here.
+#It's fairly efficient at compiling - even a rule which constructs the Mona Lisa is <1GB in size when compiled.
+#Unfortunately, the same cannot be said about its efficiency when it comes to simulation.
 import os
 import itertools
 workingdir = os.path.dirname(__file__)
@@ -74,6 +77,8 @@ def parsetable(table):
     except Exception as e:
         raise SyntaxError('The following error occurred on line ' + str(linenum) + ':\n' + str(e))
     statevars = assign(statevars)
+    if globalvars['n_states'] > 27:
+        raise ValueError('A maximum of 26 non-empty states are currently permitted in custom rules.')
     code = '\'\'\'Automatically generated function for simulating custom rule \"' + name + '\".\'\'\'\n' + generatecode(globalvars, statevars, transitions)
     f = open(workingdir + '/customrulesim.py', 'w', encoding='utf-8')
     f.write(code)
@@ -198,8 +203,10 @@ def generatecode(globalvars, statevars, transitions):
                 ifstatement += 'return '+t[9]
             elif t[9] in usedvariables:
                 ifstatement += 'return cells['+usedvariables[t[9]]+']'
+            elif len(statevars[t[9]]) == 1:
+                ifstatement += 'return '+statevars[t[9]][0]
             else:
-                raise SyntaxError('Error while compiling ruletable: Cannot have variable output with unused variable for a transition.')
+                raise SyntaxError('Error while compiling ruletable: Cannot have variable output with unused variable for a transition.\n(Error occurred with transition '+str(t))
             if ifstatement not in ifstatements:
                 code += ifstatement + '\n'
                 ifstatements.add(ifstatement)
@@ -215,9 +222,7 @@ def compile_rule(path_to_ruletable):
         f.close()
         return parsetable(content)
     except FileNotFoundError:
-        f = open(working_dir + '/' + path_to_ruletable, 'r', encoding='utf-8')
+        f = open(workingdir + '/' + path_to_ruletable, 'r', encoding='utf-8')
         content = f.read()
         f.close()
         return parsetable(content)        
-        
-compile_rule('B3S23-a5Symbiosis.rule')

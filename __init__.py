@@ -13,10 +13,13 @@ Try running cython_compile() or remove_cython_compilation()''')
         from .lifetree import Lifetree as lifetree
 else:
     from .lifetree import Lifetree as lifetree
+#Import the custom rule lifetree:
+from .tabletree import Lifetree as tabletree
 #Import the compiler regardless:
 try:
     from .cython_setup import cython_compile, remove_cython_compilation
-    __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation']
-except:
-    __all__ = ['lifetree']
+    __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation', 'tabletree']
+except ImportError:
+    __all__ = ['lifetree', 'tabletree']
+__version__ = '0.1.1'
 
