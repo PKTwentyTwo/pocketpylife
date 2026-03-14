@@ -5,7 +5,7 @@ def cleanupgrid(grid):
     newgrid = {}
     for x in grid:
         if grid[x] != 0:
-            newgrid[x] = 1
+            newgrid[x] = grid[x]
     return newgrid
 def shiftgrid(grid, dx, dy):
     '''Translate a grid by a given quantity.'''
@@ -13,7 +13,7 @@ def shiftgrid(grid, dx, dy):
     newgrid = {}
     for x, y in grid:
         if grid[(x, y)] != 0:
-            newgrid[(x + dx, y + dy)] = 1
+            newgrid[(x + dx, y + dy)] = grid[(x, y)]
     return newgrid
 def firstcell(grid):
     '''Find the first cell in a grid.'''
@@ -30,23 +30,23 @@ def transformgrid(grid, transformation):
     if transformation not in transformations:
         raise ValueError('Only the following transformations are supported: '+str(transformations))
     if transformation ==  'flip_x':
-        newgrid = {(-x, y):1 for x, y in grid}
+        newgrid = {(-x, y):grid[(x, y)] for x, y in grid}
     elif transformation ==  'flip_y':
-        newgrid = {(x, -y):1 for x, y in grid}
+        newgrid = {(x, -y):grid[(x, y)] for x, y in grid}
     elif transformation ==  'identity':
-        newgrid = {(x, y):1 for x, y in grid}
+        newgrid = {(x, y):grid[(x, y)] for x, y in grid}
     elif transformation ==  'rot_90':
-        newgrid = {(-y, x):1 for x, y in grid}
+        newgrid = {(-y, x):grid[(x, y)] for x, y in grid}
     elif transformation ==  'rot_180':
-        newgrid = {(-x, -y):1 for x, y in grid}
+        newgrid = {(-x, -y):grid[(x, y)] for x, y in grid}
     elif transformation ==  'rot_270':
-        newgrid = {(y, -x):1 for x, y in grid}
+        newgrid = {(y, -x):grid[(x, y)] for x, y in grid}
     elif transformation ==  'flip_xy':
-        newgrid = {(-x, -y):1 for x, y in grid}
+        newgrid = {(-x, -y):grid[(x, y)] for x, y in grid}
     elif transformation ==  'rcw':
-        newgrid = {(-y, x):1 for x, y in grid}
+        newgrid = {(-y, x):grid[(x, y)] for x, y in grid}
     elif transformation ==  'rccw':
-        newgrid = {(y, -x):1 for x, y in grid}
+        newgrid = {(y, -x):grid[(x, y)] for x, y in grid}
     return newgrid
 def getbbox(grid):
     '''Returns the bounding box of a grid in the form [x, y, dx, dy].'''
@@ -79,7 +79,7 @@ def calcdigest(grid):
     grid = defaultshiftgrid(grid)
     total = 0
     for x in grid:
-        total += sha1(str(x))
+        total += sha1(str(x)) * grid[x]
     return total
 def calcoctodigest(grid):
     '''Returns a digest of a grid, independent of rotation, reflection, and position.'''
@@ -225,4 +225,125 @@ def identifytype(data):
     if data.replace('_', '').isalnum():
         return 'apgcode'
     return 'rle' #The RLE parser has better error handling logic, so it is the default.
-        
+def getgridapgcode2(grid, layers = 2):
+    '''Finds the apgcode of a grid for multistate rules.'''
+    #Documentation of apgcode format can be found at:
+    #https://conwaylife.com/wiki/Apgcode
+    #To my future self:
+    #This function is a mess, but if all else fails,
+    #Check apgsearch Py3 code to understand how it works.
+    characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+    basegrid = cleanupgrid(grid)
+    basegrid = defaultshiftgrid(basegrid)
+    fullapgcode = ''
+    for n in range(1, layers + 1):
+        grid = {x:basegrid[x] for x in basegrid if basegrid[x] == n}
+        #Empty grids have no live cells:
+        if len(grid) == 0:
+            fullapgcode += '0_'
+            continue
+        #Get the bounding box of the pattern:
+        bbox = getbbox(basegrid)
+        x, y, dx, dy = bbox[0], bbox[1], bbox[2], bbox[3]
+        apgcode = ''
+        for w in range((dy - 1)//5 + 1):
+            if w != 0:
+                apgcode += 'z'
+            for l in range(dx):
+                val = 0
+                for h in range(5):
+                    val += ((2**h) * getcell(grid, (x + l, y + 5 * w + h)))
+                apgcode += characters[val]
+        #Remove zeroes from the end of lines:
+        while apgcode.count('0z') > 0:
+            apgcode = apgcode.replace('0z', 'z')
+        #Use the format's compression of zeroes:
+        #w corresponds to 00
+        #x corresponds to 000
+        #y0 through yz correspond to 4 through 39 zeroes, respectively.
+        for a in range(39, 3, -1):
+            apgcode = apgcode.replace('0' * a, 'y' + characters[a-4])
+        apgcode = apgcode.replace('000', 'x')
+        apgcode = apgcode.replace('00', 'w')
+        forbiddenend = ['w', 'x', 'z', '0', 'y']
+        #forbiddenend += [n + '0' for n in forbiddenend]
+        forbiddenend += ['y' + a for a in characters]
+        forbiddenbeforez = ['x']
+        if len(apgcode) > 1:
+            while (apgcode[-1] in forbiddenend or apgcode[-2:] in forbiddenend):
+                apgcode = apgcode[:-1]
+        for z in forbiddenbeforez:
+            while apgcode.count(z + 'z') > 0:
+                apgcode = apgcode.replace(z + 'z', 'z')
+        fullapgcode += apgcode + '_'
+    fullapgcode = fullapgcode[:-1]
+    while fullapgcode.endswith('_0'):
+        fullapgcode = fullapgcode[:-2]
+    return fullapgcode
+def apgcodetogrid(apgcode):
+    '''Converts an apgcode to a grid.'''
+    xpos = 0
+    ypos = 0
+    readpos = 0
+    grid = {}
+    characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+    apgcode = apgcode[apgcode.find('_')+1:]
+    #Convert special characters to zeroes:
+    for x in range(35, -1, -1):
+        apgcode = apgcode.replace('y' + characters[x], '0' * (x + 4))
+    apgcode = apgcode.replace('x', '000')
+    apgcode = apgcode.replace('w', '00')
+    #Go through and convert the apgcode into a grid:
+    while readpos < len(apgcode):
+        character = apgcode[readpos]
+        value = characters.find(character)
+        if value < 0:
+            raise ValueError('Illegal character in apgcode: '+character)
+        if 0 <= value < 32:
+            #We have a character denoting content.
+            for x in range(5):
+                if (value//(2**x))%2 == 1:
+                    grid[(xpos, ypos + x)] = 1
+            xpos += 1
+        elif value == 35:
+            #z denotes the next 5-row segment.
+            xpos = 0
+            ypos += 5
+        readpos += 1
+    return grid        
+def apgcodetogrid2(apgcode):
+    '''Converts an apgcode for multistaterules to a grid.'''
+    grid = {}
+    characters = '0123456789abcdefghijklmnopqrstuvwxyz'
+    ogapgcode = apgcode[apgcode.find('_')+1:]
+    apgcomponents = ogapgcode.split('_')
+    layer = 0
+    for apgcode in apgcomponents:
+        xpos = 0
+        ypos = 0
+        readpos = 0
+        layer += 1
+        print(apgcode)
+        #Convert special characters to zeroes:
+        for x in range(35, -1, -1):
+            apgcode = apgcode.replace('y' + characters[x], '0' * (x + 4))
+        apgcode = apgcode.replace('x', '000')
+        apgcode = apgcode.replace('w', '00')
+        #Go through and convert the apgcode into a grid:
+        while readpos < len(apgcode):
+            character = apgcode[readpos]
+            value = characters.find(character)
+            if value < 0:
+                raise ValueError('Illegal character in apgcode: '+character)
+            if 0 <= value < 32:
+                #We have a character denoting content.
+                for x in range(5):
+                    if (value//(2**x))%2 == 1:
+                        grid[(xpos, ypos + x)] = layer
+                xpos += 1
+            elif value == 35:
+                #z denotes the next 5-row segment.
+                xpos = 0
+                ypos += 5
+            readpos += 1
+    return grid      
