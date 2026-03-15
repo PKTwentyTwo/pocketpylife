@@ -25,8 +25,13 @@ except ImportError:
 #Import the ruletable code.
 try:
     from .tabletree import Lifetree as tableLifetree
-except:
+except ImportError:
     from tabletree import Lifetree as tableLifetree
+#Import the Generations code.
+try:
+    from .generationstree import Lifetree as genLifetree
+except ImportError:
+    from generationstree import Lifetree as genLifetree
 def lifetree(rule='b3s23'):
     '''Creates a new Lifetree for the given rule.'''
     #This is a wrapper function to take a rule and return the correct Lifetree variant.
@@ -38,4 +43,6 @@ def lifetree(rule='b3s23'):
             return isoLifetree(rule)
     elif genera == 'eightbit':
         return tableLifetree(rule)
+    elif genera == 'generations':
+        return genLifetree(rule)
 
