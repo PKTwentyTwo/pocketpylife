@@ -1,25 +1,12 @@
 '''A Python package for manipulation of patterns in cellular automata. '''
 import os
-#Check for .so and .pyd files:
-localfiles = os.listdir(os.path.dirname(__file__))
-localfiles = [x for x in localfiles if x.endswith('.pyd') or x.endswith('.so')]
-if 'cylifetree.so' in localfiles or 'cylifetree.pyd' in localfiles:
-    try:
-        from .cylifetree import Lifetree
-        lifetree = Lifetree
-    except ImportError:
-        raise Warning('''Failed to import from compiled package!
-Try running cython_compile() or remove_cython_compilation()''')
-        from .lifetree import Lifetree as lifetree
-else:
-    from .lifetree import Lifetree as lifetree
-#Import the custom rule lifetree:
-from .tabletree import Lifetree as tabletree
+#Import the routing function for Lifetrees:
+from .whichtree import lifetree
 #Import the compiler regardless:
 try:
     from .cython_setup import cython_compile, remove_cython_compilation
-    __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation', 'tabletree']
+    __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation']
 except ImportError:
-    __all__ = ['lifetree', 'tabletree']
+    __all__ = ['lifetree']
 __version__ = '0.2.0'
 

@@ -15,7 +15,7 @@ def getgenera(rulestring):
             return 'lifelike'
         return 'isotropic'
     else:
-        if os.path.isfile(rulestring) or os.path.isfile(os.path.dirname(os.path.dirname(__file__)) + '/' + rulestring):
+        if os.path.isfile(rulestring) or os.path.isfile(os.path.dirname(__file__) + '/' + rulestring):
             return 'eightbit'
     raise ValueError('Rule '+rulestring+' is not of a supported type.')
 
