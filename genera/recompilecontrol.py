@@ -4,23 +4,21 @@ import os
 import hashlib
 datafile = os.path.dirname(__file__) + '/ruletables.json'
 if not os.path.isfile(datafile):
-    f = open(datafile, 'w', encoding = 'utf-8')
-    f.write('{}')
-    f.close()
+    with open(datafile, 'w', encoding = 'utf-8') as f:
+        f.write('{}')
 try:
     with open(datafile, 'r', encoding='utf-8') as f:
         ruletables = json.loads(f.read())
-except:
+except json.decoder.JSONDecodeError:
     print('Error while decoding list of JSON ruletables!')
-    f = open(datafile, 'w', encoding = 'utf-8')
-    f.write('{}')
-    f.close()    
+    with open(datafile, 'w', encoding = 'utf-8') as f:
+        f.write('{}')
 def checksum(file):
     '''Calculates a file's SHA256 checksum.'''
     sha256 = hashlib.sha256()
-    with open(file, 'rb') as f:
+    with open(file, 'rb') as openf:
         while True:
-            data = f.read(1024)
+            data = openf.read(1024)
             if not data:
                 break
             sha256.update(data)
@@ -29,8 +27,8 @@ def addrule(filepath):
     '''Adds a filepath to the list of ruletables and their hashes.'''
     filepath = filepath.replace('\\', '/')
     ruletables[filepath] = checksum(filepath)
-    with open(datafile, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(ruletables))
+    with open(datafile, 'w', encoding='utf-8') as openf:
+        openf.write(json.dumps(ruletables))
 def needsrecompile(filepath):
     '''Returns True if a rule requires recompilation.'''
     filepath = filepath.replace('\\', '/')
@@ -44,5 +42,3 @@ def needsrecompile(filepath):
         return False
     addrule(filepath)
     return True
-
-

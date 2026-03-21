@@ -26,7 +26,15 @@ def transformgrid(grid, transformation):
     '''Apply a transformation to a grid.'''
     grid = cleanupgrid(grid)
     newgrid = {}
-    transformations=['flip_x','flip_y','identity','rot_90','rot_180','rot_270','flip_xy','rcw','rccw']
+    transformations=['flip_x',
+                     'flip_y',
+                     'identity',
+                     'rot_90',
+                     'rot_180',
+                     'rot_270',
+                     'flip_xy',
+                     'rcw',
+                     'rccw']
     if transformation not in transformations:
         raise ValueError('Only the following transformations are supported: '+str(transformations))
     if transformation ==  'flip_x':
@@ -75,7 +83,7 @@ def defaultshiftgrid(grid):
     bbox = getbbox(grid)
     return shiftgrid(grid, -bbox[0], -bbox[1])
 def calcdigest(grid):
-    '''Returns a digest of a grid, dependent on rotation and reflection but not absolute position.'''
+    '''Returns a digest of a grid, dependent on rotation & reflection but not absolute position.'''
     grid = defaultshiftgrid(grid)
     total = 0
     for x in grid:
@@ -159,44 +167,13 @@ def getgridapgcode(grid):
         while apgcode.count(z + 'z') > 0:
             apgcode = apgcode.replace(z + 'z', 'z')
     return apgcode
-def apgcodetogrid(apgcode):
-    '''Converts an apgcode to a grid.'''
-    xpos = 0
-    ypos = 0
-    readpos = 0
-    grid = {}
-    characters = '0123456789abcdefghijklmnopqrstuvwxyz'
-    apgcode = apgcode[apgcode.find('_')+1:]
-    #Convert special characters to zeroes:
-    for x in range(35, -1, -1):
-        apgcode = apgcode.replace('y' + characters[x], '0' * (x + 4))
-    apgcode = apgcode.replace('x', '000')
-    apgcode = apgcode.replace('w', '00')
-    #Go through and convert the apgcode into a grid:
-    while readpos < len(apgcode):
-        character = apgcode[readpos]
-        value = characters.find(character)
-        if value < 0:
-            raise ValueError('Illegal character in apgcode: '+character)
-        if 0 <= value < 32:
-            #We have a character denoting content.
-            for x in range(5):
-                if (value//(2**x))%2 == 1:
-                    grid[(xpos, ypos + x)] = 1
-            xpos += 1
-        elif value == 35:
-            #z denotes the next 5-row segment.
-            xpos = 0
-            ypos += 5
-        readpos += 1
-    return grid
 def getorientations(grid):
     '''Return all 8 transformations of a grid.'''
     transformed = [grid, transformgrid(grid, 'rot_90'), transformgrid(grid, 'rot_180'), transformgrid(grid, 'rot_270')]
     transformed += [transformgrid(transformgrid(grid, 'flip_x'), 'rot_90'), transformgrid(transformgrid(grid, 'flip_x'), 'rot_180'), transformgrid(transformgrid(grid, 'flip_x'), 'rot_270'), transformgrid(transformgrid(grid, 'flip_x'), 'identity')]
     return transformed
 def compareapgcode(code1, code2):
-    '''Compares two apgcodes, prioritising length first and using alphabetical order for tie-breaking.'''
+    '''Compares two apgcodes, prioritising length first, using alphabetical order for tie-breaking.'''
     if code1 == code2:
         return code1
     if len(code1) < len(code2):
@@ -211,10 +188,10 @@ def compareapgcode(code1, code2):
     return code1
 def identifytype(data):
     '''Determines whether pattern data is a grid, apgcode, or RLE.'''
-    if type(data) == type({}):
+    if data.isinstance(dict):
         return 'grid'
-    if type(data) != type('string'):
-        raise TypeError('Class \'Pattern\' only accepts strings or dictionaries as data, not '+str(type(data)))
+    if not data.isinstance(str):
+        raise TypeError('Class \'Pattern\' does not accept '+str(type(data))+' as data.')
     if data.count('_') == 0 or len(data) == 0 or not data.startswith('x'):
         return 'rle'
     #Catch out rle-exclusive characters:
@@ -227,11 +204,8 @@ def identifytype(data):
     return 'rle' #The RLE parser has better error handling logic, so it is the default.
 def getgridapgcode2(grid, layers = 2):
     '''Finds the apgcode of a grid for multistate rules.'''
-    #Documentation of apgcode format can be found at:
-    #https://conwaylife.com/wiki/Apgcode
-    #To my future self:
-    #This function is a mess, but if all else fails,
-    #Check apgsearch Py3 code to understand how it works.
+    #For multistate rules, each layer of the grid is encoded separately.
+    #
     characters = '0123456789abcdefghijklmnopqrstuvwxyz'
     basegrid = cleanupgrid(grid)
     basegrid = defaultshiftgrid(basegrid)
@@ -310,28 +284,27 @@ def apgcodetogrid(apgcode):
             xpos = 0
             ypos += 5
         readpos += 1
-    return grid        
+    return grid
 def apgcodetogrid2(apgcode):
-    '''Converts an apgcode for multistaterules to a grid.'''
+    '''Converts an apgcode for multistate rules to a grid.'''
     grid = {}
     characters = '0123456789abcdefghijklmnopqrstuvwxyz'
     ogapgcode = apgcode[apgcode.find('_')+1:]
     apgcomponents = ogapgcode.split('_')
     layer = 0
-    for apgcode in apgcomponents:
+    for apgcomponent in apgcomponents:
         xpos = 0
         ypos = 0
         readpos = 0
         layer += 1
-        print(apgcode)
         #Convert special characters to zeroes:
         for x in range(35, -1, -1):
-            apgcode = apgcode.replace('y' + characters[x], '0' * (x + 4))
-        apgcode = apgcode.replace('x', '000')
-        apgcode = apgcode.replace('w', '00')
+            apgcomponent = apgcomponent.replace('y' + characters[x], '0' * (x + 4))
+        apgcomponent = apgcomponent.replace('x', '000')
+        apgcomponent = apgcomponent.replace('w', '00')
         #Go through and convert the apgcode into a grid:
-        while readpos < len(apgcode):
-            character = apgcode[readpos]
+        while readpos < len(apgcomponent):
+            character = apgcomponent[readpos]
             value = characters.find(character)
             if value < 0:
                 raise ValueError('Illegal character in apgcode: '+character)
@@ -346,4 +319,4 @@ def apgcodetogrid2(apgcode):
                 xpos = 0
                 ypos += 5
             readpos += 1
-    return grid      
+    return grid

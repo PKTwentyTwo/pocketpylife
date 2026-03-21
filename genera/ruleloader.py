@@ -5,8 +5,10 @@
 import os
 import itertools
 workingdir = os.path.dirname(__file__)
-def istransition(line, knownvars=dict()):
+def istransition(line, knownvars=None):
     '''Determines whether a line is likely to be specifying a transition.'''
+    if knownvars is None:
+        knownvars = {}
     characters = [x for x in knownvars]
     characters += [' ', ',']
     characters += [str(x) for x in range(10)]
@@ -80,9 +82,8 @@ def parsetable(table):
     if int(globalvars['n_states']) > 27:
         raise ValueError('A maximum of 26 non-empty states are currently permitted in custom rules.')
     code = '\'\'\'Automatically generated function for simulating custom rule \"' + name + '\".\'\'\'\n' + generatecode(globalvars, statevars, transitions)
-    f = open(workingdir + '/customrulesim.py', 'w', encoding='utf-8')
-    f.write(code)
-    f.close()
+    with open(workingdir + '/customrulesim.py', 'w', encoding='utf-8') as f:
+        f.write(code)
     return (name, globalvars['n_states'])
 def isvalidvar(statevars):
     '''Determines whether a set of state variables is valid.'''
@@ -98,7 +99,6 @@ def assign(statevars):
         for x in statevars:
             for y in statevars[x]:
                 if not y.isnumeric():
-                    variable = y
                     statevars[x].remove(y)
                     statevars[x] += statevars[y]
         loops += 1
@@ -163,7 +163,7 @@ def getorientations(transition, symmetry):
         return rotate8(transition)
     if symmetry == 'rotate4':
         orientations = []
-        for b in range(4):
+        for _ in range(4):
             transition = rotate(transition)
             if transition not in orientations:
                 orientations.append(transition)
@@ -175,7 +175,6 @@ def generatecode(globalvars, statevars, transitions):
     indent = '    '
     code = '''def advancecell(cells):
 '''
-    cellnames = ['cell' + str(x) for x in range(9)]
     ifstatements = set()
     for transition in transitions:
     #Processes a single transition:
@@ -206,7 +205,9 @@ def generatecode(globalvars, statevars, transitions):
             elif len(statevars[t[9]]) == 1:
                 ifstatement += 'return '+statevars[t[9]][0]
             else:
-                raise SyntaxError('Error while compiling ruletable: Cannot have variable output with unused variable for a transition.\n(Error occurred with transition '+str(t))
+                raise SyntaxError('''Error while compiling ruletable:
+Cannot have variable output with unused variable for a transition.
+(Error occurred with transition '+str(t))''')
             if ifstatement not in ifstatements:
                 code += ifstatement + '\n'
                 ifstatements.add(ifstatement)
@@ -217,12 +218,10 @@ def compile_rule(path_to_ruletable):
     if not os.path.isfile(path_to_ruletable) and not os.path.isfile(workingdir + '/' + path_to_ruletable):
         raise FileNotFoundError('Unable to locate a ruletable at '+str(path_to_ruletable))
     try:
-        f = open(path_to_ruletable, 'r', encoding='utf-8')
-        content = f.read()
-        f.close()
+        with open(path_to_ruletable, 'r', encoding='utf-8') as f:
+            content = f.read()
         return parsetable(content)
     except FileNotFoundError:
-        f = open(workingdir + '/' + path_to_ruletable, 'r', encoding='utf-8')
-        content = f.read()
-        f.close()
-        return parsetable(content)        
+        with open(workingdir + '/' + path_to_ruletable, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return parsetable(content)
