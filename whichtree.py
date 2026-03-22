@@ -15,13 +15,13 @@ except ImportError:
 #Import the Cython code.
 try:
     from .cylifetree import Lifetree as cyLifetree
-    cython = True
+    USE_CYTHON = True
 except ImportError:
     try:
         from cylifetree import Lifetree as cyLifetree
-        cython = True
-    except:
-        cython = False
+        USE_CYTHON = True
+    except ImportError:
+        USE_CYTHON = False
 #Import the ruletable code.
 try:
     from .tabletree import Lifetree as tableLifetree
@@ -36,13 +36,12 @@ def lifetree(rule='b3s23'):
     '''Creates a new Lifetree for the given rule.'''
     #This is a wrapper function to take a rule and return the correct Lifetree variant.
     genera = getgenera(rule)
-    if genera in ['lifelike', 'isotropic']:
-        if cython:
+    if genera in ['lifelike', 'isotropic', 'b3s23life']:
+        if USE_CYTHON:
             return cyLifetree(rule)
-        else:
-            return isoLifetree(rule)
-    elif genera == 'eightbit':
+        return isoLifetree(rule)
+    if genera == 'eightbit':
         return tableLifetree(rule)
-    elif genera == 'generations':
+    if genera == 'generations':
         return genLifetree(rule)
-
+    return 'unknown'

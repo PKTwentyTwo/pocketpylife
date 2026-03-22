@@ -8,5 +8,4 @@ try:
     __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation']
 except ImportError:
     __all__ = ['lifetree']
-__version__ = '0.2.0'
-
+__version__ = '0.3.0'

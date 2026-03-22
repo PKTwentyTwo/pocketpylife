@@ -1,9 +1,9 @@
 '''Used to compile a .so or .pyd to improve speed.'''
+import os
+import platform
+import sys
 from setuptools import setup, Extension
 from Cython.Build import cythonize
-import os
-import sys
-import platform
 def cython_compile():
     '''Compiles a Cython library to improve speed.
 Requires that Cython is installed as a Python package.'''
@@ -18,10 +18,10 @@ Requires that Cython is installed as a Python package.'''
 def remove_cython_compilation():
     '''Deletes any compiled Cython libraries.'''
     dirloc = os.path.dirname(__file__)
-    files = os.listdir(dirloc)
-    files = [x for x in files if x.endswith('.so') or x.endswith('.pyd')]
+    locfiles = os.listdir(dirloc)
+    locfiles = [x for x in locfiles if x.endswith('.so') or x.endswith('.pyd')]
     total = 0
-    for n in files:
+    for n in locfiles:
         total += 1
         os.remove(dirloc + '/' + n)
     print('Successfully removed '+str(total)+' files.')
@@ -65,12 +65,12 @@ if __name__ == '__main__':
         raise FileNotFoundError('Could not locate compiled .so or .pyd!')
     file = files[0]
     if file.endswith('.so'):
-        extension = '.so'
+        EXTENSION = '.so'
     else:
-        extension = '.pyd'
+        EXTENSION = '.pyd'
     with open(file, 'rb') as f:
         code = f.read()
-    with open('cylifetree' + extension, 'wb') as f:
+    with open('cylifetree' + EXTENSION, 'wb') as f:
         f.write(code)
     os.remove(file)
     #Next, compile the gridops file:
@@ -105,12 +105,12 @@ if __name__ == '__main__':
         raise FileNotFoundError('Could not locate compiled .so or .pyd!')
     file = files[0]
     if file.endswith('.so'):
-        extension = '.so'
+        EXTENSION = '.so'
     else:
-        extension = '.pyd'
+        EXTENSION = '.pyd'
     with open(file, 'rb') as f:
         code = f.read()
-    with open('cygridops' + extension, 'wb') as f:
+    with open('cygridops' + EXTENSION, 'wb') as f:
         f.write(code)
     os.remove(file)
     #Clean up the C files:

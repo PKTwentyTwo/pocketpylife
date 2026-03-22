@@ -1,5 +1,4 @@
 '''Parses Generations rules.'''
-import re
 try:
     from .hensel import RuleHandler
 except ImportError:

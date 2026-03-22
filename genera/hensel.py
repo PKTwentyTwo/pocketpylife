@@ -116,6 +116,8 @@ class RuleHandler:
                 for n in missing_conditions:
                     rulestring += n
                 continue
+        if rulestring.count('S') == 0:
+            rulestring += '/S'
         return rulestring
     def get_9bit(self, condition):
         '''Returns a list of 9-bit decimal numbers, used to apply INT rules.'''
