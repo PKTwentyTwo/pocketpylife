@@ -22,6 +22,6 @@ def advance(grid, gens):
     return newgrid
 starttime = time.time()
 for x in range(1):
-    testgrid = advance(testgrid, 29055)
+    testgrid = advance(testgrid, 1000)
 print(time.time() - starttime)
 print(len(testgrid))
