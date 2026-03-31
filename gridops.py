@@ -188,9 +188,9 @@ def compareapgcode(code1, code2):
     return code1
 def identifytype(data):
     '''Determines whether pattern data is a grid, apgcode, or RLE.'''
-    if data.isinstance(dict):
+    if isinstance(data, dict):
         return 'grid'
-    if not data.isinstance(str):
+    if not isinstance(data, str):
         raise TypeError('Class \'Pattern\' does not accept '+str(type(data))+' as data.')
     if data.count('_') == 0 or len(data) == 0 or not data.startswith('x'):
         return 'rle'
