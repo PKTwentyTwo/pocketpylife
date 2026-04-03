@@ -14,32 +14,34 @@ def gencode(rule):
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
-int tokey(int x, int y) {
-	int key;
-	key = 32768 * (x + 16384) + y + 16384;
+#include <stdint.h>
+int64_t tokey(int32_t x, int32_t y) {
+	int64_t key;
+	key = 2147483648  * (x + 1073741824) + y + 1073741824;
 	return key;
 }
-int getx(int key) {
-	int x;
-	x = key / 32768;
-	x = x - 16384;
+int32_t getx(int64_t key) {
+	int32_t x;
+	x = key / 2147483648;
+	x = x - 1073741824;
 	return x;
 }
-int gety(int key) {
-	int y;
-	y = key % 32768;
-	y = y - 16384;
+int32_t gety(int64_t key) {
+	int32_t y;
+	y = key % 2147483648;
+	y = y - 1073741824;
 	return y;
 }
 using namespace std;
-int* advanceone(int lifearray[], int length, int* outlength) {
-	int* livecells = (int*)malloc(sizeof(int) * length/2);
-	int i, m, key;
+int32_t* advanceone(int lifearray[], int length, int* outlength) {
+	int32_t* livecells = (int*)malloc(sizeof(int32_t) * length/2);
+	int i, m;
+    int64_t key;
 	for (i = 0; i < (length / 2); i++) {
 		livecells[i] = tokey(lifearray[2*i], lifearray[2*i+1]);
 	}
-	unordered_map<int, int> neighbours = {};
-	unordered_map<int, int> states = {};
+	unordered_map<int64_t, int> neighbours = {};
+	unordered_map<int64_t, int> states = {};
 	int dx, dy;
 	for (i = 0; i < (length / 2); i++) {
 		for (dx = -1; dx < 2; dx++) {
@@ -59,10 +61,11 @@ int* advanceone(int lifearray[], int length, int* outlength) {
 		states[tokey(lifearray[2*i], lifearray[2*i+1])] = 1;
 	}
 	
-	int newkey, numneighbours, p, newarraypos, xpos, ypos;
+	int numneighbours, p, newarraypos, xpos, ypos;
+    int64_t newkey;
 	newarraypos = 0;
 	//Allocate 9x the size of the original list (worst case scenario):
-	int* newarray = (int*)malloc(length * 9 * sizeof(int));
+	int32_t* newarray = (int32_t*)malloc(length * 9 * sizeof(int32_t));
 	for (auto i : neighbours) {
 		newkey = i.first;
 		numneighbours = neighbours[newkey];
@@ -89,7 +92,7 @@ int* advanceone(int lifearray[], int length, int* outlength) {
 		}
 	}
 	int i2;
-	int* newarray2 = (int*)malloc(newarraypos * sizeof(int) + sizeof(int));
+	int32_t* newarray2 = (int32_t*)malloc(newarraypos * sizeof(int32_t) + sizeof(int32_t));
 	for (i2 = 0; i2 < newarraypos; i2++) {
 		newarray2[i2] = newarray[i2];
 	}
@@ -105,8 +108,8 @@ int main() {
 	scanf("%d", &size);
 	int generations;
 	scanf("%d", &generations);
-	int* newarray = (int*)malloc(size * sizeof(int));
-	int* array = newarray;
+	int32_t* newarray = (int*)malloc(size * sizeof(int));
+	int32_t* array = newarray;
 	int i, j;
 	int newsize;
 	for (i = 0; i < size; i++) {
@@ -123,4 +126,3 @@ int main() {
 	}
 }'''
     return code
-print(gencode('b38s23'))

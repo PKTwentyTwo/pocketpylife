@@ -22,7 +22,8 @@ def getgenera(rulestring):
         rulestring = rh.canoniserule(rulestring)
         if rulestring == 'b3s23':
             return 'b3s23life'
-        if re.match('b[1-8]*s[0-8]', rulestring):
+        rulestring += '\n'
+        if re.match('b[1-8]*s[0-8]*\n', rulestring):
             return 'lifelike'
         return 'isotropic'
     if os.path.isfile(rulestring) or os.path.isfile(os.path.dirname(__file__) + '/' + rulestring):
