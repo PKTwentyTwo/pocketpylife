@@ -2,13 +2,13 @@
 This document explains how the files in the module are organised.
 ## Directories
 The directories currently included in the project are:
-- [cplusplus](cplusplus): Contains code for simulating OT rules using C++. Currently unimplemented in the main project.
-- [cythlib](cythlib): Contains Cython code which can be compiled using ```pocketpylife.cython_compile()``` or [cycomp.sh](cycomp.sh) (the latter is more useful for development than deployment) to produce shared modules.
-- [doc](doc): Contains documentation for the module, including this file.
-- [genera](genera): Contains code used for handling rulestrings (see the below section for more info).
-- [lifetrees](lifetrees): Contains code for the class ```Lifetree``` and its relatives, which are responsible for simulation of rules.
-- [pattern](pattern): Contains code for the class ```Pattern``` and its relatives, which are created by ```Lifetree``` objects and used for high-level manipulation.
-- [tests](tests): Contains tests for the module.
+- [cplusplus](../cplusplus): Contains code for simulating OT rules using C++. Currently unimplemented in the main project.
+- [cythlib](../cythlib): Contains Cython code which can be compiled using ```pocketpylife.cython_compile()``` or [cycomp.sh](cycomp.sh) (the latter is more useful for development than deployment) to produce shared modules.
+- [doc](../doc): Contains documentation for the module, including this file.
+- [genera](../genera): Contains code used for handling rulestrings (see the below section for more info).
+- [lifetrees](../lifetrees): Contains code for the class ```Lifetree``` and its relatives, which are responsible for simulation of rules.
+- [pattern](../pattern): Contains code for the class ```Pattern``` and its relatives, which are created by ```Lifetree``` objects and used for high-level manipulation.
+- [tests](../tests): Contains tests for the module.
 ### genera
 Three types of rule are currently supported: INT rules (```isotropic```, and they include OT rules as a subset), Generations rules (```generations```, both OT and INT are supported up to 26 states), and ruletable-specified custom rules (```custom```). Functions for handling the different types of rule are located in the folder [genera](genera). These include:
  - [findgenera.py](genera/findgenera.py): Contains a function for identifying what type of rule a given rulestring is.
