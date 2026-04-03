@@ -6,6 +6,7 @@ sys.path = [os.path.dirname(os.path.dirname(os.path.dirname(__file__)))] + sys.p
 import pocketpylife
 #Tests with standard life:
 lt = pocketpylife.lifetree('b3s23')
+print('Lifetree file: '+lt.__file__)
 pt = lt.pattern('bo$3o$o!')
 if pt.population != 5:
     raise ValueError('Error with RLE parsing; R-pentomino has population '+str(pt.population))

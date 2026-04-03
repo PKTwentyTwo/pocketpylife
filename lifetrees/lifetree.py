@@ -1,65 +1,50 @@
-'''The code for the Lifetree and Pattern variants used to simulate custom rules.'''
+'''The code for the lifetree and Pattern classes, which are the highest level components.'''
 #Importing modules:
 import copy
 import math
 import urllib.request
 import hashlib
-import os
-import sys
 #Other project modules:
 try:
-    from .genera.ruleloader import compile_rule
+    from ..genera.hensel import RuleHandler
 except ImportError:
-    sys.path.append(os.path.dirname(__file__)+'/genera')
-    from ruleloader import compile_rule
+    import os, sys
+    sys.path.append(os.path.dirname(__file__) + '/genera')
+    from hensel import RuleHandler
 try:
-    from .multistatepattern import Pattern
+    from ..pattern.pattern import *
 except ImportError:
-    from multistatepattern import Pattern
+    import os, sys
+    sys.path.append(os.path.dirname(__file__)+'/../pattern')
+    from pattern import *
 #A few global variables:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 class Lifetree:
     '''Handles and simulates patterns.'''
-    def __init__(self, ruletable='LifeHistory.rule'):
-        self.rule, self.layers = compile_rule(ruletable)
-        self.layers = int(self.layers) - 1
-        sys.path.append(os.path.dirname(__file__))
-        sys.path.append(os.path.dirname(__file__)+'/genera')
-        customrulesim = __import__('customrulesim')
-        self.advancecell = customrulesim.advancecell
+    def __init__(self, rule='b3s23'):
+        self.rulehandler = RuleHandler()
+        self.rule = self.rulehandler.canoniserule(rule)
+        self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
     def getneighbours(self, grid):
         '''For each cell with at least one live neighbour, get a 9-bit integer.'''
         neighbours = {}
-        deltas = ((0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1))
-        newgrid = {x:grid[x] for x in grid}
         for x in grid:
             xcor, ycor = x[0], x[1]
-            for dx, dy in deltas:
-                if (xcor + dx, ycor + dy) not in grid:
-                    newgrid[(xcor + dx, ycor + dy)] = 0
-        grid = {x:newgrid[x] for x in newgrid}
-        for x in grid:
-            xcor, ycor = x[0], x[1]
-            cell = grid[x]
-            neighbourlist = [cell]
-            for dx, dy in deltas:
-                if (xcor + dx, ycor + dy) not in grid:
-                    neighbourlist.append(0)
-                else:
-                    neighbourlist.append(grid[(xcor + dx, ycor + dy)])
-            neighbourlist = [str(s) for s in neighbourlist]
-            neighbours[x] = neighbourlist[:]
+            for a in range(3):
+                for b in range(3):
+                    coord = (xcor + a - 1, ycor + b - 1)
+                    if coord not in neighbours:
+                        neighbours[coord] = 0
+                    neighbours[coord] += 2**(8 - 3 * b - a)
         return neighbours
     def advanceone(self, grid):
         '''Advance a grid of cells by one generation.'''
         neighbours = self.getneighbours(grid)
         newgrid = {}
-        adv = self.advancecell
         for x in neighbours:
-            ev = int(adv(neighbours[x]))
-            if ev != 0:
-                newgrid[x] = ev
+            if neighbours[x] in self.conditionset:
+                newgrid[x] = 1
         return newgrid
     def advance(self, grid, gens):
         '''Advance a grid a specific number of generations.'''
@@ -74,7 +59,6 @@ class Lifetree:
         grid = {}
         position = -1
         digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-        letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'U', 'V', 'W', 'X', 'Y', 'Z']
         cstring = ''
         isnum = False
         while position + 1 < len(rle):
@@ -103,11 +87,7 @@ class Lifetree:
                         for n in range(integer):
                             grid[(x+n, y)] = 1
                         x += integer
-                    elif operator in letters:
-                        for n in range(integer):
-                            grid[(x+n, y)] = letters.index(operator) + 1
-                        x += integer                        
-                    elif operator ==  '.' or operator == 'b':
+                    elif operator ==  'b':
                         x += integer
                     elif operator ==  '$':
                         x = 0
@@ -132,26 +112,25 @@ class Lifetree:
             rows[y].append(x)
         for x in rows:
             rows[x] = sorted(rows[x])
-        letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'U', 'V', 'W', 'X', 'Y', 'Z']
         rows = dict(sorted(rows.items()))
-        rle = 'x = '+str(bbox[2])+', y = '+str(bbox[3])+', rule = '+self.rule+'\n'
+        rle = 'x = '+str(bbox[2])+', y = '+str(bbox[3])+', rule = '+self.rule.replace('b', 'B').replace('s', '/S')+'\n'
         for x in range(bbox[1], bbox[1] + bbox[3]):
             if x not in rows:
                 rle += '$'
                 continue
             for y in range(bbox[0], bbox[0] + bbox[2]):
                 if y in rows[x]:
-                    rle += letters[grid[(y, x)] - 1]
+                    rle += 'o'
                 else:
-                    rle += '.'
+                    rle += 'b'
             rle += '$'
         rle = rle[:-1]
         rle += '!'
         #Compress the RLE:
-        operators = ['.', '$', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+        operators = ['o', 'b', '$']
         for x in operators:
             longestchain = 1
-            while rle.count(x * (longestchain)) > 0:
+            while rle.count(x * (longestchain+1)) > 0:
                 longestchain += 1
             if longestchain >= 2:
                 for n in range(longestchain, 1, -1):
@@ -269,13 +248,36 @@ class Lifetree:
                 rle = instring.split('-')[1]
                 return self.pattern(rle)
         return self.pattern('b!')
+    def download_synth(self, apgcode):
+        '''Downloads a glider synthesis from Catagolue.'''
+        if self.rule != 'b3s23':
+            raise ValueError('Can only download syntheses if configured for b3s23.')
+        c = urllib.request.urlopen(CATAGOLUE_URL+'/textsamples/'+apgcode+'/'+'b3s23/synthesis')
+        response = c.read().decode('utf-8')
+        if 'x' in response:
+            return response
+        return None
+    def download_soups(self, apgcode, sym='C1'):
+        '''Returns a list of soups producing a target object.'''
+        c = urllib.request.urlopen(CATAGOLUE_URL + '/textsamples/' + apgcode + '/' + self.rule)
+        response = c.read().decode('utf-8')
+        soups = []
+        for x in response.split('\n'):
+            data = x.split('/')
+            if len(data) != 2:
+                continue
+            symmetry, seed = data[0], data[1]
+            if symmetry != sym:
+                continue
+            soups.append(self.hashsoup(seed, symmetry))
+        return soups
     def pattern(self, data):
         '''Creates a new Pattern given an RLE string.'''
         datatype = identifytype(data)
         if datatype == 'rle':
             grid = self.rle_to_grid(data)
         elif datatype == 'apgcode':
-            grid = apgcodetogrid2(data)
+            grid = apgcodetogrid(data)
         else:
             grid = data
         pt = Pattern(self, grid)

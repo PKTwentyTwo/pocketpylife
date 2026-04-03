@@ -8,13 +8,15 @@ except ImportError:
     sys.path.append(os.path.dirname(__file__)+'/genera')
     from findgenera import getgenera
 #Import the Lifetree code.
+sys.path.append(os.path.dirname(__file__)+'/lifetrees')
+sys.path.append(os.path.dirname(__file__)+'/cythlib')
 try:
-    from .lifetree import Lifetree as isoLifetree
+    from .lifetrees.lifetree import Lifetree as isoLifetree
 except ImportError:
     from lifetree import Lifetree as isoLifetree
 #Import the Cython code.
 try:
-    from .cylifetree import Lifetree as cyLifetree
+    from .cythlib.cylifetree import Lifetree as cyLifetree
     USE_CYTHON = True
 except ImportError:
     try:
@@ -24,12 +26,12 @@ except ImportError:
         USE_CYTHON = False
 #Import the ruletable code.
 try:
-    from .tabletree import Lifetree as tableLifetree
+    from .lifetrees.tabletree import Lifetree as tableLifetree
 except ImportError:
     from tabletree import Lifetree as tableLifetree
 #Import the Generations code.
 try:
-    from .generationstree import Lifetree as genLifetree
+    from .lifetrees.generationstree import Lifetree as genLifetree
 except ImportError:
     from generationstree import Lifetree as genLifetree
 def lifetree(rule='b3s23'):

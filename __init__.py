@@ -4,8 +4,8 @@ import os
 from .whichtree import lifetree
 #Import the compiler regardless:
 try:
-    from .cython_setup import cython_compile, remove_cython_compilation
+    from .cythlib.cython_setup import cython_compile, remove_cython_compilation
     __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation']
 except ImportError:
     __all__ = ['lifetree']
-__version__ = '0.3.0'
+__version__ = '0.4.0'

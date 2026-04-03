@@ -1,4 +1,4 @@
-'''The code for the Lifetree and Pattern variants used to simulate custom rules.'''
+'''The code for the Lifetree and Pattern variants used to simulate Generations rules.'''
 #Importing modules:
 import copy
 import math
@@ -8,64 +8,60 @@ import os
 import sys
 #Other project modules:
 try:
-    from .genera.ruleloader import compile_rule
+    from ..genera.generations import *
 except ImportError:
-    sys.path.append(os.path.dirname(__file__)+'/genera')
-    from ruleloader import compile_rule
+    sys.path.append(os.path.dirname(__file__)+'/../genera')
+    from generations import *
 try:
-    from .multistatepattern import Pattern
+    from ..pattern.multistatepattern import Pattern
 except ImportError:
+    sys.path.append(os.path.dirname(__file__)+'/../pattern')
     from multistatepattern import Pattern
 #A few global variables:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 class Lifetree:
     '''Handles and simulates patterns.'''
-    def __init__(self, ruletable='LifeHistory.rule'):
-        self.rule, self.layers = compile_rule(ruletable)
-        self.layers = int(self.layers) - 1
-        sys.path.append(os.path.dirname(__file__))
-        sys.path.append(os.path.dirname(__file__)+'/genera')
-        customrulesim = __import__('customrulesim')
-        self.advancecell = customrulesim.advancecell
+    def __init__(self, rule='B3/S23/3'):
+        self.rule = canonisegenstringexternal(rule)
+        self.rule_internal = canonisegenstringinternal(rule)
+        self.birth, self.survival, self.gen = splitgenrule(rule)
+        self.layers = int(self.gen) - 1
+        self.conditionset = getgenset(rule)
         self.__file__ = __file__
     def getneighbours(self, grid):
         '''For each cell with at least one live neighbour, get a 9-bit integer.'''
         neighbours = {}
-        deltas = ((0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1))
-        newgrid = {x:grid[x] for x in grid}
         for x in grid:
             xcor, ycor = x[0], x[1]
-            for dx, dy in deltas:
-                if (xcor + dx, ycor + dy) not in grid:
-                    newgrid[(xcor + dx, ycor + dy)] = 0
-        grid = {x:newgrid[x] for x in newgrid}
-        for x in grid:
-            xcor, ycor = x[0], x[1]
-            cell = grid[x]
-            neighbourlist = [cell]
-            for dx, dy in deltas:
-                if (xcor + dx, ycor + dy) not in grid:
-                    neighbourlist.append(0)
-                else:
-                    neighbourlist.append(grid[(xcor + dx, ycor + dy)])
-            neighbourlist = [str(s) for s in neighbourlist]
-            neighbours[x] = neighbourlist[:]
+            for a in range(3):
+                for b in range(3):
+                    coord = (xcor + a - 1, ycor + b - 1)
+                    if coord not in neighbours:
+                        neighbours[coord] = 0
+                    if grid[x] == 1:
+                        neighbours[coord] += 2**(8 - 3 * b - a)
         return neighbours
     def advanceone(self, grid):
         '''Advance a grid of cells by one generation.'''
         neighbours = self.getneighbours(grid)
         newgrid = {}
-        adv = self.advancecell
         for x in neighbours:
-            ev = int(adv(neighbours[x]))
-            if ev != 0:
-                newgrid[x] = ev
+            if x not in grid:
+                if neighbours[x] in self.conditionset:
+                    newgrid[x] = 1
+            elif grid[x] == 1:
+                if neighbours[x] in self.conditionset:
+                    newgrid[x] = 1
+                else:
+                    newgrid[x] = 2
+            else:
+                if (grid[x] + 1)%(self.layers + 1) != 0:
+                    newgrid[x] = (grid[x] + 1)%(self.layers + 1)
         return newgrid
     def advance(self, grid, gens):
         '''Advance a grid a specific number of generations.'''
-        adv = self.advanceone
         for _ in range(gens):
-            grid = adv(grid)
+            grid = self.advanceone(grid)
         return grid
     def rle_to_grid(self, rle):
         '''Converts an RLE to a dictionary format.'''

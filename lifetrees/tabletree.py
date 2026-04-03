@@ -8,13 +8,14 @@ import os
 import sys
 #Other project modules:
 try:
-    from .genera.ruleloader import compile_rule
+    from ..genera.ruleloader import compile_rule
 except ImportError:
     sys.path.append(os.path.dirname(__file__)+'/genera')
     from ruleloader import compile_rule
 try:
-    from .multistatepattern import Pattern
+    from ..pattern.multistatepattern import Pattern
 except ImportError:
+    sys.path.append(os.path.dirname(__file__)+'/../pattern')
     from multistatepattern import Pattern
 #A few global variables:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
@@ -23,8 +24,7 @@ class Lifetree:
     def __init__(self, ruletable='LifeHistory.rule'):
         self.rule, self.layers = compile_rule(ruletable)
         self.layers = int(self.layers) - 1
-        sys.path.append(os.path.dirname(__file__))
-        sys.path.append(os.path.dirname(__file__)+'/genera')
+        sys.path.append(os.path.dirname(__file__)+'/../genera')
         customrulesim = __import__('customrulesim')
         self.advancecell = customrulesim.advancecell
         self.__file__ = __file__

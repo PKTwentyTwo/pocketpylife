@@ -1,3 +1,3 @@
 #!/bin/bash
-rm -rf *.so *.c *.exe *.pyd genera/customrulesim.py cplusplus/*.cpp build __pycache__ */__pycache__ | true
+rm -rf cythlib/*.so cythlib/*.c cythlib/*.pyd genera/customrulesim.py cplusplus/*.cpp cythlib/build __pycache__ */__pycache__ | true
 

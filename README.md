@@ -10,7 +10,8 @@ It is very slow, however, and so it is mostly written as a test.
 Cellular automata functionality is implemented through the class ```Lifetree```. A Lifetree is responsible for the actual simulation, using an extremely basic algorithm and an unbounded grid. It does this as a backend to the class ```Pattern```, which stores a dictionary of live cells.
 The syntax is very similar to lifelib, with patterns being advanced using ```pt[gens]```, and many functions and properties are similar as well.
 ## Documentation
-Documentation on how to use the rule can be found in the [full documentation](full_documentation.md).
+Documentation on how to use the rule can be found in the [full documentation](doc/full_documentation.md).
+Documentation on the structure of the module can be found [here](doc/structure.md).
 ## Speed
 Given the terrible performance of the library, Cython support is avaliable to improve speed.
 If Cython is avaliable as a module, the function ```cython_compile()``` can be used to compile a shared object to improve the module's performance.
