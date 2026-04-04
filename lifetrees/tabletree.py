@@ -1,8 +1,5 @@
 '''The code for the Lifetree variant used to simulate custom rules.'''
 #Importing modules:
-import copy
-import math
-import urllib.request
 import hashlib
 import os
 import sys
