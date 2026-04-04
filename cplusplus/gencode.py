@@ -127,5 +127,6 @@ int main() {
 }'''
     return code
 if __name__ == '__main__':
+    import os
     with open(os.path.dirname(__file__)+'/life.cpp', 'w', encoding='utf-8') as f:
         f.write(gencode('b3s23'))
