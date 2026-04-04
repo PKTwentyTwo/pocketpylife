@@ -26,12 +26,12 @@ def get_bash():
     #Bash is needed to run the g++ compiler, and it is installed by default on POSIX systems.
     #Windows doesn't have it by default, but Cygwin provides a sufficient alternative.
     if os.name == 'posix':
-        return ['/bin/bash']
+        return ['/bin/bash', cppdir + '/cygbash.sh']
     else:
         return [getcygdir() + '/bin/bash.exe', cppdir + '/cygbash.sh']
 def getcompiler():
     '''Determines if it is feasible to compile in the current working environment.
-Throws an error if compilation is not possible, and otherwise returns the compiler location.'''
+Throws an error if compilation is not possible, and otherwise returns the compiler.'''
     #Check if the architecture is 64-bit:
     numbits = 8 * struct.calcsize("P")
     if numbits != 64:
@@ -42,7 +42,7 @@ Throws an error if compilation is not possible, and otherwise returns the compil
     except subprocess.CalledProcessError:
         raise OSError('''g++ does not appear to be installed on this system.
 Try installing it with: sudo apt install g++''')
-    return gpp_location
+    return 'g++'
 def isvalid(rule):
     '''Determines whether a rule is valid or not for code generation.'''
     genera = getgenera(rule)
