@@ -21,7 +21,11 @@ The module attempts to load a shared object first, then loads the Python code if
 If g++ (and Cygwin, if running on Windows) is avaliable, then you can call ```pocketpylife.cpplifetree``` to use a ```Lifetree``` that uses C++ code for simulation.
 The C++ code is generated automatically at compilation time, but only outer-totalistic rules are supported.
 
-Using Lidka as a benchmark on my (fairly fast) computer, the timings were:
+Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark on my (fairly fast) computer, the timings were:
 - Pure Python: 122.289 seconds
-- Cython:      81.441 seconds
-- C++:         34.246 seconds
+- Cython:      81.441 seconds (33.4% reduction in time)
+- C++:         34.246 seconds (72% reduction in time)
+For the same benchmark on a Raspberry Pi 5 running Ubuntu Server:
+- Pure Python: 255.591 seconds 
+- Cython: 182.253 seconds (28.7% reduction in time)
+- C++: 73.796 seconds (71.1% reduction in time)
