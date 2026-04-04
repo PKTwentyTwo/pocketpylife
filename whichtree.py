@@ -1,15 +1,19 @@
 '''Creates the correct variant of a Lifetree given the rulestring.'''
+#This file serves as the main access point for __init__.py.
 import os
 import sys
+rootdir = os.path.dirname(__file__)
 #Import the genus-determining code.
 try:
-    from .genera.findgenera import getgenera
+    from .genera.findgenera import getgenera, RuleHandler
 except ImportError:
-    sys.path.append(os.path.dirname(__file__)+'/genera')
-    from findgenera import getgenera
+    sys.path.append(rootdir+'/genera')
+    from findgenera import getgenera, RuleHandler
+rh = RuleHandler()
 #Import the Lifetree code.
-sys.path.append(os.path.dirname(__file__)+'/lifetrees')
-sys.path.append(os.path.dirname(__file__)+'/cythlib')
+sys.path.append(rootdir+'/lifetrees')
+sys.path.append(rootdir+'/cythlib')
+sys.path.append(rootdir+'/cplusplus')
 try:
     from .lifetrees.lifetree import Lifetree as isoLifetree
 except ImportError:
@@ -34,6 +38,11 @@ try:
     from .lifetrees.generationstree import Lifetree as genLifetree
 except ImportError:
     from generationstree import Lifetree as genLifetree
+#Import the C++ lifetree code.
+try:
+    from .cplusplus.cpplifetree import Lifetree as cppLifetree
+except ImportError:
+    from cpplifetree import Lifetree as cppLifetree
 def lifetree(rule='b3s23'):
     '''Creates a new Lifetree for the given rule.'''
     #This is a wrapper function to take a rule and return the correct Lifetree variant.
@@ -47,3 +56,19 @@ def lifetree(rule='b3s23'):
     if genera == 'generations':
         return genLifetree(rule)
     return 'unknown'
+def cpplifetree(rule='b3s23', force_compile = False):
+    '''Creates a new Lifetree using C++ for maximum speed.
+Only works with outer-totalistic rules.
+Requires Cygwin on Windows and g++ on all systems.'''
+    if getgenera(rule) not in ['lifelike', 'b3s23life']:
+        raise ValueError('Rule '+rule+' is in genus '+getgenera(rule)+' which is not supported.')
+    rule = rh.canoniserule(rule)
+    if force_compile:
+        if os.path.exists(rootdir + '/cplusplus/bin'):
+            files = os.listdir(rootdir + '/cplusplus/bin')
+        else:
+            files = []
+        for x in files:
+            if x in [rule, rule + '.exe']:
+                os.remove(rootdir + '/cplusplus/bin/' + x)
+    return cppLifetree(rule)

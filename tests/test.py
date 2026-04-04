@@ -56,14 +56,12 @@ $8.6B3D17B$8.27B$7.29B$8.27B$8.26B$8.26B$9.24B.2B$8.30B3.B$7.29B2AB.B
 A2B16.2A8.2A.3A$4.5BABA2B16.A10.A.A$4.6BAB.B2A15.3A7.A.A$2.2AB.5B2.BA
 .A16.A8.A$.A.AB.4B6.A$.A14.2A$2A!
 ''')
-#Support for C++ lifetrees is only tested on POSIX systems:
-if os.name == 'posix':
-    try:
-        lt6 = pocketpylife.cpplifetree('b2s')
-        pt = lt6.pattern('xs4_33')
-        if pt[200].population != 16644:
-            raise ValueError('Error with C++ lifetree simulation!')
-    except Exception as e:
-        print('Error occurred while attempting to test C++ lifetree:')
-        print(e)
+try:
+    lt6 = pocketpylife.cpplifetree('b2s')
+    pt = lt6.pattern('xs4_33')
+    if pt[200].population != 16644:
+        raise ValueError('Error with C++ lifetree simulation!')
+except Exception as e:
+    print('Error occurred while attempting to test C++ lifetree:')
+    print(e)
 print('Concluded testing with no errors.')
