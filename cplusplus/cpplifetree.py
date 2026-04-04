@@ -1,4 +1,4 @@
-'''The code for the lifetree and Pattern classes, which are the highest level components.'''
+'''The code for a Lifetree with a much faster C++ algorithm for simulating OT rules.'''
 #Importing modules:
 import copy
 import math
@@ -6,33 +6,41 @@ import urllib.request
 import hashlib
 import re
 import subprocess
+import os, sys
 #Other project modules:
 try:
     from ..genera.hensel import RuleHandler
 except ImportError:
-    import os, sys
     sys.path.append(os.path.dirname(__file__) + '/../genera')
     from hensel import RuleHandler
 try:
-    from ..pattern.pattern import *
+    from ..pattern.pattern import Pattern
 except ImportError:
-    import os, sys
     sys.path.append(os.path.dirname(__file__)+'/../pattern')
-    from pattern import *
+    from pattern import Pattern
 try:
     from .compilecontrol import *
 except ImportError:
     from compilecontrol import *
+try:
+    from ..gridops import *
+except:
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from gridops import *
 #A few global variables:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 cppdir = os.path.dirname(__file__)
 class Lifetree:
-    '''Handles and simulates patterns.'''
+    '''Simulates patterns in outer-totalistic rules using automatically generated C++ code.
+Requires g++, and requires Cygwin to be registered if on Windows.'''
     def __init__(self, rule='b3s23'):
         self.rulehandler = RuleHandler()
         self.rule = self.rulehandler.canoniserule(rule)
-        simfiles = os.listdir(cppdir + '/bin')
-        simfiles = [x for x in simfiles if re.match(rule+'(\\.exe)*', x)]
+        if os.path.isdir(cppdir + '/bin'):
+            simfiles = os.listdir(cppdir + '/bin')
+            simfiles = [x for x in simfiles if re.match(rule+'(\\.exe)*', x)]
+        else:
+            simfiles = []
         if len(simfiles) == 0:
             compilerule(self.rule)
             simfiles = os.listdir(cppdir + '/bin')
@@ -282,10 +290,9 @@ class Lifetree:
             for x in range(len(thesoup)//2):
                 thesoup2[(thesoup[2*x], thesoup[2*x+1])] = 1
             return self.pattern(thesoup2)
-        else:
-            if instring.count('-') == 1:
-                rle = instring.split('-')[1]
-                return self.pattern(rle)
+        if instring.count('-') == 1:
+            rle = instring.split('-')[1]
+            return self.pattern(rle)
         return self.pattern('b!')
     def download_synth(self, apgcode):
         '''Downloads a glider synthesis from Catagolue.'''

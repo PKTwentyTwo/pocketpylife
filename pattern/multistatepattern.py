@@ -1,4 +1,4 @@
-'''The code implementing multistate patterns.'''
+'''The code for the Pattern class used for high-level manipulation with multistate rules.'''
 import copy
 import math
 import hashlib

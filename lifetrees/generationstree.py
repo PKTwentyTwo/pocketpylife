@@ -1,8 +1,5 @@
-'''The code for the Lifetree and Pattern variants used to simulate Generations rules.'''
+'''The code for the Lifetree variant used to simulate Generations rules.'''
 #Importing modules:
-import copy
-import math
-import urllib.request
 import hashlib
 import os
 import sys
@@ -17,10 +14,15 @@ try:
 except ImportError:
     sys.path.append(os.path.dirname(__file__)+'/../pattern')
     from multistatepattern import Pattern
+try:
+    from ..gridops import *
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from gridops import *
 #A few global variables:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 class Lifetree:
-    '''Handles and simulates patterns.'''
+    '''Handles and simulates patterns in Generations rules.'''
     def __init__(self, rule='B3/S23/3'):
         self.rule = canonisegenstringexternal(rule)
         self.rule_internal = canonisegenstringinternal(rule)

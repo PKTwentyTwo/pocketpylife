@@ -1,4 +1,4 @@
-'''The code for the lifetree and Pattern classes, which are the highest level components.'''
+'''The code for the Pattern class used for high-level manipulation with INT rules.'''
 #Importing modules:
 import copy
 import math

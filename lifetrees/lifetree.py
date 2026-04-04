@@ -1,22 +1,25 @@
-'''The code for the lifetree and Pattern classes, which are the highest level components.'''
+'''The code for the Lifetree class, which is used to simulate INT rules.'''
 #Importing modules:
-import copy
-import math
 import urllib.request
 import hashlib
+import os
+import sys
 #Other project modules:
 try:
     from ..genera.hensel import RuleHandler
 except ImportError:
-    import os, sys
     sys.path.append(os.path.dirname(__file__) + '/genera')
     from hensel import RuleHandler
 try:
-    from ..pattern.pattern import *
+    from ..pattern.pattern import Pattern
 except ImportError:
-    import os, sys
     sys.path.append(os.path.dirname(__file__)+'/../pattern')
-    from pattern import *
+    from pattern import Pattern
+try:
+    from ..gridops import *
+except ImportError:
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from gridops import *
 #A few global variables:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 class Lifetree:

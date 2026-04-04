@@ -72,7 +72,7 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 		xpos = getx(newkey);
 		ypos = gety(newkey);
 		if (states[newkey] == 1) {
-			if ('''
+			if ((numneighbours == -1) or '''
     for x in survival:
         code += '(numneighbours == '+x+') or'
     code = code[:-3] + ') {\n'
@@ -82,7 +82,7 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 			}
 		}
 		else {
-			if ('''
+			if ((numneighbours == -1) or '''
     for x in birth:
         code += '(numneighbours == '+x+') or'
     code = code[:-3] + ''') {\n				newarray[newarraypos] = xpos;

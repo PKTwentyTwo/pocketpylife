@@ -8,4 +8,7 @@ try:
     __all__ = ['lifetree', 'cython_compile', 'remove_cython_compilation']
 except ImportError:
     __all__ = ['lifetree']
-__version__ = '0.4.0'
+if os.name == 'posix':
+    from .cplusplus.cpplifetree import Lifetree as cpplifetree
+    __all__.append('cpplifetree')
+__version__ = '0.5.0'
