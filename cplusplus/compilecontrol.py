@@ -3,6 +3,7 @@ import os
 import struct
 import subprocess
 import sys
+import time
 try:
     from ..genera.hensel import RuleHandler
     from ..genera.findgenera import getgenera
@@ -65,7 +66,8 @@ def compilerule(rule,
     for x in command:
         joinedcommand += x + ' '
     joinedcommand = joinedcommand[:-1]
-    print('Attempting compilation with command:\n'+joinedcommand)
+    sys.stderr.write('Attempting compilation with command:\n'+joinedcommand+'\n')
+    starttime = time.time()
     #Compile the code:
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     compiler_stdout, compiler_stderr = proc.communicate()
@@ -73,7 +75,7 @@ def compilerule(rule,
     if os.name == 'nt':
         copydlls()
     if status == 0:
-        print('Compilation successful.')
+        sys.stderr.write('Compilation succeeded in '+str(round(time.time() - starttime, 3))+' seconds.\n')
         os.remove(cppdir+'/life.cpp')
     else:
         raise ValueError('Error occurred during compilation!\n\n' + compiler_stderr.decode('utf-8'))

@@ -2,6 +2,7 @@
 import os
 import platform
 import sys
+import time
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 def cython_compile():
@@ -26,6 +27,7 @@ def remove_cython_compilation():
         os.remove(dirloc + '/' + n)
     print('Successfully removed '+str(total)+' files.')
 if __name__ == '__main__':
+    starttime = time.time()
     #Delete any  old files:
     oldcwd = os.getcwd()
     os.chdir(os.path.dirname(__file__))
@@ -119,3 +121,4 @@ if __name__ == '__main__':
     if os.path.isfile('cygridops.c'):
         os.remove('cygridops.c')
     os.chdir(oldcwd)
+    sys.stderr.write('Compilation succeeded in '+str(round(time.time() - starttime, 3))+' seconds.\n')

@@ -15,6 +15,7 @@ def gencode(rule):
 #include <unordered_map>
 #include <algorithm>
 #include <stdint.h>
+#include <vector>
 int64_t tokey(int32_t x, int32_t y) {
 	int64_t key;
 	key = 2147483648 * (x + 1073741824) + y + 1073741824;
@@ -34,11 +35,12 @@ int32_t gety(int64_t key) {
 }
 using namespace std;
 int32_t* advanceone(int lifearray[], int length, int* outlength) {
-	int32_t* livecells = (int*)malloc(sizeof(int32_t) * length/2);
+	vector<int64_t> livecells = {};
+    livecells.reserve(length / 2);
 	int i, m;
     int64_t key;
 	for (i = 0; i < (length / 2); i++) {
-		livecells[i] = tokey(lifearray[2*i], lifearray[2*i+1]);
+		livecells.push_back(tokey(lifearray[2*i], lifearray[2*i+1]));
 	}
 	unordered_map<int64_t, int> neighbours = {};
 	unordered_map<int64_t, int> states = {};
@@ -62,12 +64,10 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 		}
 		states[tokey(lifearray[2*i], lifearray[2*i+1])] = 1;
 	}
-	
 	int numneighbours, p, newarraypos, xpos, ypos;
     int64_t newkey;
 	newarraypos = 0;
-	//Allocate 9x the size of the original list (worst case scenario):
-	int32_t* newarray = (int32_t*)malloc(length * 9 * sizeof(int32_t));
+	vector<int32_t> newarray = {};
 	for (auto i : neighbours) {
 		newkey = i.first;
 		numneighbours = neighbours[newkey];
@@ -78,8 +78,8 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
     for x in survival:
         code += '(numneighbours == '+x+') or'
     code = code[:-3] + ') {\n'
-    code += '''				newarray[newarraypos] = xpos;
-				newarray[newarraypos+1] = ypos;
+    code += '''				newarray.push_back(xpos);
+				newarray.push_back(ypos);
 				newarraypos = newarraypos + 2;
 			}
 		}
@@ -87,8 +87,8 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 			if ((numneighbours == -1) or '''
     for x in birth:
         code += '(numneighbours == '+x+') or'
-    code = code[:-3] + ''') {\n				newarray[newarraypos] = xpos;
-				newarray[newarraypos+1] = ypos;
+    code = code[:-3] + ''') {\n				newarray.push_back(xpos);
+				newarray.push_back(ypos);
 				newarraypos = newarraypos + 2;
 			}
 		}
@@ -99,10 +99,6 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 		newarray2[i2] = newarray[i2];
 	}
 	*outlength = newarraypos;
-	free(newarray);
-	//for (i2 = 0; i2 < newarraypos; i2++) {
-	//	printf("%d\\n", newarray2[i2]);
-	//}
 	return newarray2;
 }
 int main() {
@@ -130,5 +126,10 @@ int main() {
     return code
 if __name__ == '__main__':
     import os
+    import sys
+    if len(sys.argv) == 2:
+        rule = sys.argv[1]
+    else:
+        rule = 'b3s23'
     with open(os.path.dirname(__file__)+'/life.cpp', 'w', encoding='utf-8') as f:
-        f.write(gencode('b3s23'))
+        f.write(gencode(rule))
