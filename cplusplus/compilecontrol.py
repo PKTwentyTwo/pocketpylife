@@ -19,8 +19,6 @@ if os.name == 'nt':
         from cygwin import getcygdir, copydlls
 rh = RuleHandler()
 cppdir = os.path.dirname(__file__)
-#Flags passed to the compiler:
-COMPILER_ARGS = ['-O3', '-pthread', '-march=native', '-Ofast', '-funroll-loops']
 def get_bash():
     '''Returns what bash is going to be used for compilation.'''
     #Bash is needed to run the g++ compiler, and it is installed by default on POSIX systems.
@@ -47,7 +45,8 @@ def isvalid(rule):
     '''Determines whether a rule is valid or not for code generation.'''
     genera = getgenera(rule)
     return genera in ['b3s23life', 'lifelike']
-def compilerule(rule):
+def compilerule(rule,
+                compilerargs = ['-O3', '-march=native', '-funroll-loops']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')
@@ -61,7 +60,7 @@ def compilerule(rule):
     #Write a command to compile the code:
     command = get_bash() + [getcompiler()]
     command += [cppdir+'/life.cpp', '-o', cppdir+'/bin/'+rule]
-    command += COMPILER_ARGS
+    command += compilerargs
     joinedcommand = ''
     for x in command:
         joinedcommand += x + ' '

@@ -17,12 +17,12 @@ def gencode(rule):
 #include <stdint.h>
 int64_t tokey(int32_t x, int32_t y) {
 	int64_t key;
-	key = 2147483648  * (x + 1073741824) + y + 1073741824;
+	key = 2147483648 * (x + 1073741824) + y + 1073741824;
 	return key;
 }
 int32_t getx(int64_t key) {
 	int32_t x;
-	x = key / 2147483648;
+	x = key >> 31;
 	x = x - 1073741824;
 	return x;
 }
@@ -42,6 +42,8 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 	}
 	unordered_map<int64_t, int> neighbours = {};
 	unordered_map<int64_t, int> states = {};
+	neighbours.reserve(8 * (length / 2));
+	states.reserve(length / 2);
 	int dx, dy;
 	for (i = 0; i < (length / 2); i++) {
 		for (dx = -1; dx < 2; dx++) {
@@ -54,7 +56,7 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 					if (states.find(key) == states.end()) {
 						states[key] = 0;
 					}
-					neighbours[key] = neighbours[key] + 1;
+					neighbours[key]++;
 				}
 			}
 		}
