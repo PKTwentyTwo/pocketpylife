@@ -48,6 +48,7 @@ Requires g++, and requires Cygwin to be registered if on Windows.'''
         self.simfile = cppdir + '/bin/' + simfiles[0]
         self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
+        self.layers = 1
     def getneighbours(self, grid):
         '''For each cell with at least one live neighbour, get a 9-bit integer.'''
         neighbours = {}

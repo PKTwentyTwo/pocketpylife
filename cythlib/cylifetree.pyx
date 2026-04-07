@@ -25,6 +25,7 @@ class Lifetree:
         self.rule = self.rulehandler.canoniserule(rule)
         self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
+        self.layers = 1
         cdef dict digestdict = {}
         self.digestdict = digestdict
     def getneighbours(self, grid):

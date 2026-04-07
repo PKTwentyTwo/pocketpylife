@@ -29,6 +29,7 @@ class Lifetree:
         self.rule = self.rulehandler.canoniserule(rule)
         self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
+        self.layers = 1
     def getneighbours(self, grid):
         '''For each cell with at least one live neighbour, get a 9-bit integer.'''
         neighbours = {}
