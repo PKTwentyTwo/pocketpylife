@@ -184,7 +184,7 @@ class RuleHandler:
         elif condition ==  'B4t':
             conditions = [105, 135, 300, 450]
         elif condition ==  'B4w':
-            conditions = [94, 244, 307, 409]
+            conditions = [78, 228, 291, 393]
         elif condition ==  'B4y':
             conditions = [101, 197, 269, 323, 326, 332, 353, 389]
         elif condition ==  'B4z':
