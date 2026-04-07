@@ -32,8 +32,8 @@ def add_cygdir(directory):
     cygdirs.append(directory)
     text = ''
     for x in cygdirs:
-        if (os.path.isdir(x) and os.path.isfile(x + '/bin/bash.exe')) or x.startswith('#'):
-            text += os.path.abspath(x) + '\n'
+        if (os.path.isdir(x) and os.path.isfile(x + '/bin/bash.exe')) or x.count('#') > 0:
+            text += '\n' + os.path.abspath(x) + '\n'
     with open(cygdir_file, 'w', encoding='utf-8') as f:
         f.write(text)
 def install_cygwin(root = None, packages = ['gcc-g++']):

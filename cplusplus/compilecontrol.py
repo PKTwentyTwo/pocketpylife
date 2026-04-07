@@ -28,6 +28,14 @@ def get_bash():
         return ['/bin/bash', cppdir + '/cygbash.sh']
     else:
         return [getcygdir() + '/bin/bash.exe', cppdir + '/cygbash.sh']
+def dos2unix(file):
+    '''Converts a file from DOS format to Unix format.
+Needed to fix the fact that Git Bash is stupid and automatically does the opposite.'''
+    with open(file, 'rb') as f:
+        content = f.read()
+    content = content.replace(b'\n\r', b'\n')
+    with open(file, 'wb') as f:
+        f.write(content)
 def getcompiler():
     '''Determines if it is feasible to compile in the current working environment.
 Throws an error if compilation is not possible, and otherwise returns the compiler.'''
@@ -36,6 +44,7 @@ Throws an error if compilation is not possible, and otherwise returns the compil
     if numbits != 64:
         raise OSError('C++ bindings are currently not avaliable for '+str(numbits)+'-bit systems.')
     #Check that g++ is avaliable:
+    dos2unix(cppdir + '/cygbash.sh')
     try:
         gpp_location = subprocess.check_output(get_bash() + ['which', 'g++']).decode('utf-8').replace('\n', '')
     except subprocess.CalledProcessError:
@@ -58,6 +67,7 @@ def compilerule(rule,
     code = gencode(rule)
     with open(cppdir + '/life.cpp', 'w', encoding = 'utf-8') as f:
         f.write(code)
+    dos2unix(cppdir + '/cygbash.sh')
     #Write a command to compile the code:
     command = get_bash() + [getcompiler()]
     command += [cppdir+'/life.cpp', '-o', cppdir+'/bin/'+rule]
