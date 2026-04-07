@@ -13,4 +13,4 @@ if os.name == 'nt':
     from .cplusplus.cygwin import add_cygdir, install_cygwin
     __all__ += ['add_cygdir', 'install_cygwin']
 __all__.sort()
-__version__ = '1.0.0'
+__version__ = '1.1.0'
