@@ -23,7 +23,6 @@ def getcygdir():
             continue
         if os.path.isdir(x) and os.path.isfile(x + '/bin/bash.exe'):
             return os.path.abspath(x)
-        cygdirs.remove(x)
     raise ValueError('''Unable to locate a valid Cygwin directory!
 Try running pocketpylife.install_cygwin(),
 or add an installation using pocketpylife.add_cygdir().''')
