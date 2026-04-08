@@ -17,6 +17,9 @@ def getgenera(rulestring):
         return 'generations'
     except ValueError:
         pass
+    if rulestring.lower().endswith('history'):
+        if rh.isvalid(rulestring[:-7]):
+            return 'history'
     if rh.isvalid(rulestring):
         #Valid use of Hensel notation.
         rulestring = rh.canoniserule(rulestring)

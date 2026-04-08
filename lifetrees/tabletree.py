@@ -7,7 +7,7 @@ import sys
 try:
     from ..genera.ruleloader import compile_rule
 except ImportError:
-    sys.path.append(os.path.dirname(__file__)+'/genera')
+    sys.path.append(os.path.dirname(__file__)+'/../genera')
     from ruleloader import compile_rule
 try:
     from ..pattern.multistatepattern import Pattern

@@ -11,6 +11,15 @@ except ImportError:
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
     from gridops import *
+try:
+    from ..viewer import sim
+except ImportError:
+    try:
+        from viewer import sim
+    except ImportError:
+        #Tkinter is probably not installed.
+        def sim(pt, gens, arguments = {}):
+            return None
 class Pattern:
     '''This is the class used for manipulation of patterns.'''
     def __init__(self, lifetree, grid=dict()):
@@ -107,6 +116,9 @@ class Pattern:
         f = open(filename, 'w', encoding = 'utf-8')
         f.write(rle)
         f.close()
+    def viewer(self, gens=1, options={}):
+        '''Opens a Tkinter window showing the pattern.'''
+        sim(self, gens, options)
     @property
     def rle(self):
         '''The Run Length Encoding (RLE) of a pattern.'''

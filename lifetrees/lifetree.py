@@ -8,7 +8,7 @@ import sys
 try:
     from ..genera.hensel import RuleHandler
 except ImportError:
-    sys.path.append(os.path.dirname(__file__) + '/genera')
+    sys.path.append(os.path.dirname(__file__) + '/../genera')
     from hensel import RuleHandler
 try:
     from ..pattern.pattern import Pattern

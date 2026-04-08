@@ -11,9 +11,10 @@ except ImportError:
     from findgenera import getgenera, RuleHandler
 rh = RuleHandler()
 #Import the Lifetree code.
-sys.path.append(rootdir+'/lifetrees')
-sys.path.append(rootdir+'/cythlib')
-sys.path.append(rootdir+'/cplusplus')
+sys.path.append(rootdir +'/lifetrees')
+sys.path.append(rootdir +'/cythlib')
+sys.path.append(rootdir +'/cplusplus')
+sys.path.append(rootdir + '/genera')
 try:
     from .lifetrees.lifetree import Lifetree as isoLifetree
 except ImportError:
@@ -33,6 +34,11 @@ try:
     from .lifetrees.tabletree import Lifetree as tableLifetree
 except ImportError:
     from tabletree import Lifetree as tableLifetree
+#Import the ruletable generation code.
+try:
+    from .genera.makehistory import makehistory
+except ImportError:
+    from makehistory import makehistory
 #Import the Generations code.
 try:
     from .lifetrees.generationstree import Lifetree as genLifetree
@@ -49,13 +55,22 @@ def lifetree(rule='b3s23'):
     genera = getgenera(rule)
     if genera in ['lifelike', 'isotropic', 'b3s23life']:
         if USE_CYTHON:
-            return cyLifetree(rule)
-        return isoLifetree(rule)
-    if genera == 'eightbit':
-        return tableLifetree(rule)
-    if genera == 'generations':
-        return genLifetree(rule)
-    return 'unknown'
+            lt = cyLifetree(rule)
+        else:
+            lt = isoLifetree(rule)
+    elif genera == 'eightbit':
+        lt = tableLifetree(rule)
+    elif genera == 'generations':
+        lt = genLifetree(rule)
+    elif genera == 'history':
+        with open(rootdir + '/genera/ruletable.rule', 'w', encoding='utf-8') as f:
+            f.write(makehistory(rule[:-7]))
+        lt = tableLifetree('ruletable.rule')
+        os.remove(rootdir + '/genera/ruletable.rule')
+    else:
+        return None
+    lt.genera = genera
+    return lt
 def cpplifetree(rule='b3s23', force_compile = False):
     '''Creates a new Lifetree using C++ for maximum speed.
 Only works with outer-totalistic rules.
@@ -71,4 +86,6 @@ Requires Cygwin on Windows and g++ on all systems.'''
         for x in files:
             if x in [rule, rule + '.exe']:
                 os.remove(rootdir + '/cplusplus/bin/' + x)
-    return cppLifetree(rule)
+    lt = cppLifetree(rule)
+    lt.genera = getgenera(rule)
+    return lt
