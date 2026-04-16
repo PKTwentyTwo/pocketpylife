@@ -39,7 +39,7 @@ print('Successfully tested B38/S23 with no errors.')
 #Test the other genera:
 lt3 = pocketpylife.lifetree('b3s23-a5')
 lt4 = pocketpylife.lifetree('B3/S23/C3')
-lt5 = pocketpylife.lifetree('LifeHistory.rule')
+lt5 = pocketpylife.lifetree('LifeHistory')
 pt3 = lt3.pattern('xq4_27')
 pt4 = lt4.pattern('''x = 24, y = 27, rule = 23/3/3
 .3A9.3A$A2BA9.A2BA$AB2.BA5.AB2.BA$2.A2BA5.A2BA$2.A2BA5.A2BA2$6.2A.2A$

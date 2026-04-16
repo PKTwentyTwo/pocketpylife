@@ -17,6 +17,8 @@ def getgenera(rulestring):
         return 'generations'
     except ValueError:
         pass
+    if rulestring.lower() == 'lifehistory':
+        rulestring = 'b3s23history'
     if rulestring.lower().endswith('history'):
         if rh.isvalid(rulestring[:-7]):
             return 'history'

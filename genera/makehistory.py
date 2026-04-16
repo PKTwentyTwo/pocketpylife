@@ -1,6 +1,4 @@
 '''Converts an INT rule to a History rule.'''
-import os
-import sys
 try:
     from .findgenera import getgenera
     from .hensel import RuleHandler

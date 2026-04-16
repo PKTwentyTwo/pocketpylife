@@ -19,9 +19,9 @@ except ImportError:
     sys.path.append(os.path.dirname(__file__)+'/../pattern')
     from pattern import Pattern
 try:
-    from .compilecontrol import *
+    from .compilecontrol import compilerule
 except ImportError:
-    from compilecontrol import *
+    from compilecontrol import compilerule
 try:
     from ..gridops import *
 except:

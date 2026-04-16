@@ -23,7 +23,7 @@ except ImportError:
 CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 class Lifetree:
     '''Handles and simulates patterns.'''
-    def __init__(self, ruletable='LifeHistory.rule'):
+    def __init__(self, ruletable='LifeHistory'):
         self.rule, self.layers = compile_rule(ruletable)
         self.layers = int(self.layers) - 1
         sys.path.append(os.path.dirname(__file__)+'/../genera')

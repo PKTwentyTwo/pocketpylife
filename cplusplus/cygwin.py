@@ -43,7 +43,7 @@ def install_cygwin(root = None, packages = ['gcc-g++']):
     #This function only ever needs to be called on Windows:
     if os.name != 'nt':
         print('Skipping installation as Cygwin is only required on Windows.')
-        return None
+        return
     #Need to set up some file paths:
     packdir = cppdir + '/cygwin/packages'
     setup_executable = cppdir + '/cygwin/setup-x86_64.exe'
@@ -70,7 +70,11 @@ def install_cygwin(root = None, packages = ['gcc-g++']):
     add_cygdir(root)
 def copydlls():
     '''Copies the necessary DLLs across to the folder containing compiled rule binaries.'''
-    dlls = ['cygstdc++-6.dll', 'cygwin1.dll', 'cyggcc_s-seh-1.dll', 'cygiconv-2.dll', 'cygintl-8.dll']
+    dlls = ['cygstdc++-6.dll',
+        'cygwin1.dll',
+        'cyggcc_s-seh-1.dll',
+        'cygiconv-2.dll',
+        'cygintl-8.dll']
     for x in dlls:
         if os.path.isfile(cppdir + '/bin/' + x):
             os.remove(cppdir + '/bin/' + x)

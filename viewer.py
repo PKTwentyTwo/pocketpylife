@@ -71,6 +71,7 @@ def sim(pt, gens, arguments = {}):
         colours[6] = '#606060' #A dark grey.
     elif pt.lifetree.genera == 'generations':
         #Generations states are a smooth gradient from red to yellow.
+        #Red is #FF0000, yellow is #FFFF00, so numbers from 0 to 255 are generated for the G value.
         for x in range(1, layers + 1):
             colour = '#FF'
             gradient = round(((x - 1) / (layers - 1)) * 255)

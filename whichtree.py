@@ -63,6 +63,8 @@ def lifetree(rule='b3s23'):
     elif genera == 'generations':
         lt = genLifetree(rule)
     elif genera == 'history':
+        if rule.lower() == 'lifehistory':
+            rule = 'b3s23history'
         with open(rootdir + '/genera/ruletable.rule', 'w', encoding='utf-8') as f:
             f.write(makehistory(rule[:-7]))
         lt = tableLifetree('ruletable.rule')

@@ -26,8 +26,7 @@ def get_bash():
     #Windows doesn't have it by default, but Cygwin provides a sufficient alternative.
     if os.name == 'posix':
         return ['/bin/bash', cppdir + '/cygbash.sh']
-    else:
-        return [getcygdir() + '/bin/bash.exe', cppdir + '/cygbash.sh']
+    return [getcygdir() + '/bin/bash.exe', cppdir + '/cygbash.sh']
 def dos2unix(file):
     '''Converts a file from DOS format to Unix format.
 Needed to fix the fact that Git Bash is stupid and automatically does the opposite.'''
@@ -46,7 +45,7 @@ Throws an error if compilation is not possible, and otherwise returns the compil
     #Check that g++ is avaliable:
     dos2unix(cppdir + '/cygbash.sh')
     try:
-        gpp_location = subprocess.check_output(get_bash() + ['which', 'g++']).decode('utf-8').replace('\n', '')
+        subprocess.check_output(get_bash() + ['which', 'g++']).decode('utf-8').replace('\n', '')
     except subprocess.CalledProcessError:
         raise OSError('''g++ does not appear to be installed on this system.
 Try installing it with: sudo apt install g++''')
@@ -56,7 +55,7 @@ def isvalid(rule):
     genera = getgenera(rule)
     return genera in ['b3s23life', 'lifelike']
 def compilerule(rule,
-                compilerargs = ['-O3', '-march=native', '-funroll-loops']):
+                compilerargs = ['-O3', '-march=native', '-funroll-loops', '-std=c++11']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')

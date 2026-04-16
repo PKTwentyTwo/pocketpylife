@@ -2,7 +2,7 @@
 This document explains how the files in the module are organised.
 ## Directories
 The directories currently included in the project are:
-- [cplusplus](../cplusplus): Contains code for simulating OT rules using C++, including a C++ code generator, and functions to locate a suitable compiler.
+- [cplusplus](../cplusplus): Contains code for simulating OT rules using C++, including a C++ code generator, and functions to locate a suitable compiler. Compiled code is stored in the [bin](../cplusplus/bin) directory.
 - [cythlib](../cythlib): Contains Cython code which can be compiled using ```pocketpylife.cython_compile()``` or [cycomp.sh](../cycomp.sh) (the latter is more useful for development than deployment) to produce shared modules.
 - [doc](../doc): Contains documentation for the module, including this file.
 - [genera](../genera): Contains code used for handling rulestrings (see the below section for more info).
@@ -23,7 +23,7 @@ When ```pocketpylife.lifetree()``` is called, findgenera.py is used to determine
  - [cylifetree.pyx](../cythlib/cylifetree.pyx): A Cython version of the above. It is slightly faster, but has to be compiled using ```pocketpylife.cython_compile()```, or by running the script [cycomp.sh](cycomp.sh), although the latter is mainly intended for development rather than deployment.
  - [tabletree.py](../lifetrees/tabletree.py): A modified version that uses ruletables. It simulates rules using customrulesim.py
  - [generationstree.py](../lifetrees/generationstree.py): A modified version that supports Generations rules. It mixes the INT algorithm from lifetree.py with additional code to support dying states.
- - [cpplifetree.py](../cplusplus/cpplifetree.py): The fastest version. It generates and compiles a C++ program at creation time, then uses subprocesses to simulate OT rules 4x as fast as pure Python.
+ - [cpplifetree.py](../cplusplus/cpplifetree.py): The fastest version. It generates and compiles a C++ program at creation time, then uses subprocesses to simulate OT rules up to 6x as fast as pure Python, depending on the OS, CPU, and compiler.
 ### Pattern
  As mentioned above, high-level pattern manipulation is achieved through the class ```Pattern```. Two separate files are used, depending on the ```Lifetree``` being used to create one:
  - [pattern.py](../pattern/pattern.py): Specialised for two-state rules, and used for simulating OT/INT rules.

@@ -37,7 +37,7 @@ using namespace std;
 int32_t* advanceone(int lifearray[], int length, int* outlength) {
 	vector<int64_t> livecells = {};
     livecells.reserve(length / 2);
-	int i, m;
+	int i;
     int64_t key;
 	for (i = 0; i < (length / 2); i++) {
 		livecells.push_back(tokey(lifearray[2*i], lifearray[2*i+1]));
@@ -64,8 +64,8 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 		}
 		states[tokey(lifearray[2*i], lifearray[2*i+1])] = 1;
 	}
-	int numneighbours, p, newarraypos, xpos, ypos;
-    int64_t newkey;
+	int numneighbours, newarraypos, xpos, ypos;
+    	int64_t newkey;
 	newarraypos = 0;
 	vector<int32_t> newarray = {};
 	for (auto i : neighbours) {
@@ -108,7 +108,7 @@ int main() {
 	scanf("%d", &generations);
 	int32_t* newarray = (int*)malloc(size * sizeof(int));
 	int32_t* array = newarray;
-	int i, j;
+	int i;
 	int newsize;
 	for (i = 0; i < size; i++) {
 		scanf("%d", &newarray[i]);
@@ -124,6 +124,7 @@ int main() {
 	}
 }'''
     return code
+#For testing purposes:
 if __name__ == '__main__':
     import os
     import sys

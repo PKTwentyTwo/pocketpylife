@@ -1,6 +1,16 @@
 
 # Full documentation
 This document explains the entire syntax and structure of the library.
+## Full list of functions
+The complete list of top-level functions is displayed below:
+- ```pocketpylife.lifetree(rule)```: Creates a new Lifetree for the given rule. The specified rule can be INT (or any subset), Generations, or the path to a ruletable file.
+- ```pocketpylife.cpplifetree(rule, force_compile = False)```: Creates a new Lifetree with C++ simulation for the given rule. Throws an error if g++ is not avaliable, or the rule is not OT.
+Windows exclusive functions:
+- ```pocketpylife.install_cygwin()```: Installs Cygwin in the [cplusplus](../cplusplus) directory. This is required for compilation of C++ code.
+- ```pocketpylife.add_cygdir()```: Adds a directory to [cygdirs.txt](../cplusplus/cygdirs.txt). Useful if you already have a Cygwin installation.
+Functions avaliable if Cython is installed:
+- ```pocketpylife.cython_compile()```: Compiles the Cython code in the [cythlib](../cythlib) folder, which improves speed by 25-30%.
+- ```pocketpylife.remove_cython_compilation()```: Removes any Cython shared libraries. Useful to fix buggy installations.
 ## How to use lifetrees:
 A ```lifetree``` is the Python class used to create and evolve patterns. To create one, simply run:
 

@@ -29,7 +29,7 @@ Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark o
 For Windows using Git Bash, the timings were:
 - Pure Python: 116.26 seconds
 - Cython: 72.648 seconds (37.5% reduction in time).      Compilation: 8 seconds (using Microsoft's cl.exe).
-- C++: 35.98 seconds (69.1% reduction in time).          Compilation: 1.65 seconds/rule
+- C++: 35.98 seconds (69.1% reduction in time).          Compilation: 1.65 seconds/rule (g++ for Cygwin isn't the fastest.)
 
 For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 - Pure Python: 252.998 seconds 
@@ -39,4 +39,6 @@ For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 Compare these times with the below for an idea of how slow they are:
 - Lifelib: 0.00055 seconds. Compilation: 22 seconds/rule
 ## License
-The module is licensed under the permissive MIT license. Note that Cygwin, which is used for compilation on Windows, is licensed under the LGPL and uses GPL components, including the g++ compiler.
+The module is licensed under the permissive MIT license. 
+Note that Cygwin, which is used for compilation on Windows, is licensed under the LGPL and uses GPL components, including the g++ compiler. No (L)GPL software is included by default, as the Cygwin installer is downloaded just before it is required.
+
