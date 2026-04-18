@@ -38,7 +38,8 @@ For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 
 Compare these times with the below for an idea of how slow they are:
 - Lifelib: 0.00055 seconds. Compilation: 22 seconds/rule
-## License
-The module is licensed under the permissive MIT license. 
+## License and credits
+The module is licensed under the permissive MIT license.
+The header file [robin_hood.h](cplusplus/includes/robin_hood.h) is taken from [martinus's robin_hood_hashing](https://github.com/martinus/robin-hood-hashing), which is licensed under a separate MIT license. It is not essential; the C++ code generator will default to ```std::unordered_map``` if no header file is found.
 Note that Cygwin, which is used for compilation on Windows, is licensed under the LGPL and uses GPL components, including the g++ compiler. No (L)GPL software is included by default, as the Cygwin installer is downloaded just before it is required.
 

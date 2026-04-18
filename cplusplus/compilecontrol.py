@@ -55,7 +55,7 @@ def isvalid(rule):
     genera = getgenera(rule)
     return genera in ['b3s23life', 'lifelike']
 def compilerule(rule,
-                compilerargs = ['-O3', '-march=native', '-funroll-loops', '-std=c++11']):
+                compilerargs = ['-O3', '-march=native', '-funroll-loops', '-std=c++11', '-fopenmp']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')

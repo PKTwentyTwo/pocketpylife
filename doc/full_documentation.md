@@ -83,4 +83,9 @@ A range of read-only properties are available:
  - ```pt1 - pt2``` returns the difference of two patterns - only cells that are alive in ```pt1``` and dead in ```pt2``` will be alive in the resultant pattern.
  - ```pt1 ^ pt2``` returns the symmetric difference of two patterns - only cells that are alive in exactly one pattern will be alive in the resultant pattern,
 
-
+## Tests
+The following tests are currently avaliable:
+- [test.py](../tests/test.py): Tests a wide range of functionality for the project, throwing an error if anything goes wrong.
+- [benchmark.py](../tests/benchmark.py): Tests the speed of Python, Cython, and C++ simulation algorithms on a benchmark. The benchmark used is simulating 29055 generations of the methuselah Lidka.
+- [cpp_test.py](../tests/cpp_test.py): Tests the speed of the C++ simulation algorithm on the Lidka benchmark. The arguments in sys.argv are passed to the compiler. Options that will improve speed include -O3, -march=native, and -funroll-loops.
+- [testviewer.py](../tests/testviewer.py): Tests the pattern viewer by displaying a p59 glider gun in LifeHistory. It may take a few seconds to simulate ahead of time.

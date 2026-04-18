@@ -1,4 +1,5 @@
 '''Generates C++ code for simulating outer-totalistic rules.'''
+import os
 def gencode(rule):
     '''Generates code for a given rule.'''
     splitrule = rule.split('s')
@@ -106,7 +107,7 @@ int main() {
 	scanf("%d", &size);
 	int generations;
 	scanf("%d", &generations);
-	int32_t* newarray = (int*)malloc(size * sizeof(int));
+	int32_t* newarray = (int*)malloc(size * sizeof(int32_t));
 	int32_t* array = newarray;
 	int i;
 	int newsize;
@@ -123,6 +124,10 @@ int main() {
 		printf("%d\\n", newarray[i]);
 	}
 }'''
+    #A faster, third party header file is included:
+    if os.path.isfile(os.path.dirname(__file__) + '/includes/robin_hood.h'):
+        code = code.replace('<unordered_map>', '\"includes/robin_hood.h\"')
+        code = code.replace('unordered_map', 'robin_hood::unordered_map')
     return code
 #For testing purposes:
 if __name__ == '__main__':
