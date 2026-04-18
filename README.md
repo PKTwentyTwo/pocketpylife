@@ -30,6 +30,7 @@ For Windows using Git Bash, the timings were:
 - Pure Python: 117.533 seconds
 - Cython: 73.647 seconds (37.3% reduction in time).      Compilation: 8.1 seconds (using Microsoft's cl.exe).
 - C++: 12.371 seconds (89.5% reduction in time).         Compilation: 3.1 seconds/rule (MinGW compilers compile slowly but execute much faster than Cygwin.)
+
 For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 - Pure Python: 252.998 seconds 
 - Cython: 182.089 seconds (28.0% reduction in time).     Compilation: 23.5 seconds
@@ -38,7 +39,9 @@ For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 Compare these times with the below for an idea of how slow they are:
 - Lifelib: 0.00055 seconds. Compilation: 22 seconds/rule
 ## License and credits
-The module is licensed under the permissive MIT license.
+The module is licensed under the permissive [MIT license](LICENSE).
+
 The header file [robin_hood.h](cplusplus/includes/robin_hood.h) is taken from [martinus's robin_hood_hashing](https://github.com/martinus/robin-hood-hashing), which is licensed under a separate MIT license. It is not essential; the C++ code generator will default to ```std::unordered_map``` if no header file is found.
+
 MinGW and 7-Zip are downloaded on Windows when compiling but are not included by default. The latter falls under an LGPL license, while the former contains GPL, LGPL, and other copyleft/permissive licensed components.
 
