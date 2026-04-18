@@ -8,9 +8,9 @@ try:
     __all__ = ['lifetree', 'cpplifetree', 'cython_compile', 'remove_cython_compilation']
 except ImportError:
     __all__ = ['lifetree', 'cpplifetree']
-#Import Cygwin related functions on Windows:
+#Import MinGW related functions on Windows:
 if os.name == 'nt':
-    from .cplusplus.cygwin import add_cygdir, install_cygwin
-    __all__ += ['add_cygdir', 'install_cygwin']
+    from .cplusplus.mingw import install_mingw
+    __all__ += ['install_mingw']
 __all__.sort()
-__version__ = '1.2.0'
+__version__ = '1.3.0'

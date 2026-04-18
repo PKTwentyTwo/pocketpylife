@@ -18,7 +18,7 @@ Given the terrible performance of the library, there are options avaliable to im
 If Cython is avaliable as a module, the function ```cython_compile()``` can be used to compile a shared object to improve the module's performance.
 The module attempts to load a shared object first, then loads the Python code if that fails. Remove faulty installations with ```remove_cython_compilation()```.
 
-If g++ (and Cygwin, if running on Windows) is avaliable, then you can call ```pocketpylife.cpplifetree()``` to use a ```Lifetree``` that uses C++ code for simulation.
+If g++ (and MinGW, if running on Windows) is avaliable, then you can call ```pocketpylife.cpplifetree()``` to use a ```Lifetree``` that uses C++ code for simulation.
 The C++ code is generated automatically at compilation time, but only outer-totalistic rules are supported.
 
 Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark on my (fairly fast) computer with WSL, the timings were:
@@ -27,10 +27,9 @@ Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark o
 - C++:         21.99 seconds (81.1% reduction in time).  Compilation: 0.76 seconds/rule
 
 For Windows using Git Bash, the timings were:
-- Pure Python: 116.26 seconds
-- Cython: 72.648 seconds (37.5% reduction in time).      Compilation: 8 seconds (using Microsoft's cl.exe).
-- C++: 35.98 seconds (69.1% reduction in time).          Compilation: 1.65 seconds/rule (g++ for Cygwin isn't the fastest.)
-
+- Pure Python: 117.533 seconds
+- Cython: 73.647 seconds (37.3% reduction in time).      Compilation: 8.1 seconds (using Microsoft's cl.exe).
+- C++: 12.371 seconds (89.5% reduction in time).         Compilation: 3.1 seconds/rule (MinGW compilers compile slowly but execute much faster than Cygwin.)
 For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 - Pure Python: 252.998 seconds 
 - Cython: 182.089 seconds (28.0% reduction in time).     Compilation: 23.5 seconds
@@ -41,5 +40,5 @@ Compare these times with the below for an idea of how slow they are:
 ## License and credits
 The module is licensed under the permissive MIT license.
 The header file [robin_hood.h](cplusplus/includes/robin_hood.h) is taken from [martinus's robin_hood_hashing](https://github.com/martinus/robin-hood-hashing), which is licensed under a separate MIT license. It is not essential; the C++ code generator will default to ```std::unordered_map``` if no header file is found.
-Note that Cygwin, which is used for compilation on Windows, is licensed under the LGPL and uses GPL components, including the g++ compiler. No (L)GPL software is included by default, as the Cygwin installer is downloaded just before it is required.
+MinGW and 7-Zip are downloaded on Windows when compiling but are not included by default. The latter falls under an LGPL license, while the former contains GPL, LGPL, and other copyleft/permissive licensed components.
 
