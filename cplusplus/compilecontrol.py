@@ -42,7 +42,7 @@ def isvalid(rule):
     genera = getgenera(rule)
     return genera in ['b3s23life', 'lifelike']
 def compilerule(rule,
-                compilerargs = ['-O3', '-march=native', '-funroll-loops', '-std=c++11', '-fopenmp']):
+                compilerargs = ['-O3', '-march=native', '-funroll-loops', '-std=c++11']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')
@@ -78,6 +78,5 @@ def compilerule(rule,
     status = proc.returncode
     if status == 0:
         sys.stderr.write('Compilation succeeded in '+str(round(time.time() - starttime, 3))+' seconds.\n')
-        os.remove(cppdir+'/life.cpp')
     else:
         raise ValueError('Error occurred during compilation!\n\n' + compiler_stderr.decode('utf-8'))

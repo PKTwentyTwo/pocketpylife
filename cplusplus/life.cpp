@@ -34,12 +34,15 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 	robin_hood::unordered_map<int64_t, int> states = {};
 	neighbours.reserve(8 * (length / 2));
 	states.reserve(length / 2);
-	int dx, dy;
+	int32_t ux, uy, x, y;
 	for (i = 0; i < (length / 2); i++) {
-		for (dx = -1; dx < 2; dx++) {
-			for (dy = -1; dy < 2; dy++) {
-				if (not ((dx == 0) and (dy == 0))) {
-					key = tokey(lifearray[2*i] + dx, lifearray[2*i+1]+dy);
+                x = lifearray[2*i];
+                y = lifearray[2*i+1];
+                states[tokey(x, y)] = 1;
+		for (ux = x-1; ux < x+2; ux++) {
+			for (uy = y-1; uy < y+2; uy++) {
+				if (not ((ux == x) and (uy == y))) {
+					key = tokey(ux, uy);
 					if (neighbours.find(key) == neighbours.end()) {
 						neighbours[key] = 0;
 					}
@@ -50,7 +53,6 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 				}
 			}
 		}
-		states[tokey(lifearray[2*i], lifearray[2*i+1])] = 1;
 	}
 	int numneighbours, newarraypos, xpos, ypos;
     	int64_t newkey;
