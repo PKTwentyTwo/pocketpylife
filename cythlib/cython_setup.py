@@ -5,16 +5,18 @@ import sys
 import time
 from setuptools import setup, Extension
 from Cython.Build import cythonize
-def cython_compile():
+def cython_compile(force_recompile = True):
     '''Compiles a Cython library to improve speed.
 Requires that Cython is installed as a Python package.'''
+    if (not force_recompile) and extensions_exist():
+        return None
     executable = sys.executable
     executable = os.path.basename(executable)
     if executable.endswith('.exe'):
         executable = executable[:-4]
     cmd = executable + ' \"' + __file__ + '\" build_ext --inplace'
-    print('Attempting to compile using following command:')
-    print(cmd)
+    sys.stderr.write('Attempting to compile using following command:\n')
+    sys.stderr.write(cmd + '\n')
     os.system(cmd)
 def remove_cython_compilation():
     '''Deletes any compiled Cython libraries.'''
@@ -25,7 +27,13 @@ def remove_cython_compilation():
     for n in locfiles:
         total += 1
         os.remove(dirloc + '/' + n)
-    print('Successfully removed '+str(total)+' files.')
+    sys.stderr.write('Successfully removed '+str(total)+' files.')
+def extensions_exist():
+    '''Determines if Cython extensions have been compiled or not.'''
+    cythdir = os.path.dirname(__file__)
+    files = [x for x in os.listdir(cythdir) if x.endswith('.so') or x.endswith('.pyd')]
+    files = [x[0:x.find('.')] for x in files]
+    return 'cygridops' in files and 'cylifetree' in files
 if __name__ == '__main__':
     starttime = time.time()
     #Delete any  old files:

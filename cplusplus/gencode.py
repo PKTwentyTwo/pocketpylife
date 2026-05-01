@@ -1,7 +1,7 @@
 '''Generates C++ code for simulating outer-totalistic rules.'''
 import os
-def gencode(rule):
-    '''Generates code for a given rule.'''
+def genadvheader(rule):
+    '''Generates code for advancing given rule.'''
     splitrule = rule.split('s')
     birth = []
     survival = []
@@ -11,11 +11,11 @@ def gencode(rule):
     for x in splitrule[1]:
         if x.isnumeric():
             survival.append(x)
-    code = '//Automatically generated C++ code for simulating ' + rule + '''.
+    code = '//Automatically generated C++ header for simulating ' + rule + '''.
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 int64_t tokey(int32_t x, int32_t y) {
 	int64_t key;
@@ -103,34 +103,58 @@ int32_t* advanceone(int lifearray[], int length, int* outlength) {
 	}
 	*outlength = newarraypos;
 	return newarray2;
-}
-int main() {
-	int size;
-	scanf("%d", &size);
-	int generations;
-	scanf("%d", &generations);
-	int32_t* newarray = (int*)malloc(size * sizeof(int32_t));
-	int32_t* array = newarray;
-	int i;
-	int newsize;
-	for (i = 0; i < size; i++) {
-		scanf("%d", &newarray[i]);
-	}
-	for (i = 0; i < generations; i++) {
-		array = advanceone(newarray, size, &newsize);
-		free(newarray);
-		newarray = array;
-		size = newsize;
-	}
-	for (i = 0; i < size; i++) {
-		printf("%d\\n", newarray[i]);
-	}
 }'''
     #A faster, third party header file is included:
     if os.path.isfile(os.path.dirname(__file__) + '/includes/robin_hood.h'):
         code = code.replace('<unordered_map>', '\"includes/robin_hood.h\"')
         code = code.replace('unordered_map', 'robin_hood::unordered_map')
     return code
+def gencode():
+    '''Generates the code containing high-level functions.'''
+    return '''//High-level functions for manipulating patterns.
+#include <iostream>
+#include "advance.h"
+#include <algorithm>
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <fstream>
+//The below extern statement is required to load a shared library as a CDLL with ctypes.
+extern "C" {
+using namespace std;
+int32_t* cppadvance(int32_t size, int32_t* newsize, int32_t generations, int32_t lifearray[]) {
+    //Internal function used for advancing patterns (for other C++ functions).
+	int32_t* newarray = (int32_t*)malloc(size * sizeof(int32_t));
+	int32_t* array = newarray;
+	int i;
+    for (i = 0; i < size; i++) {
+        newarray[i] = lifearray[i];
+    }
+    int32_t newsize2;
+	for (i = 0; i < generations; i++) {
+		array = advanceone(newarray, size, &newsize2);
+		free(newarray);
+		newarray = array;
+		size = newsize2;
+	}
+    *newsize = size;
+    return newarray;
+}
+void pyadvance(int32_t size, int32_t generations, int32_t lifearray[]) {
+    //Wrapper function for cppadvance() which saves to a file.
+	int32_t* array = (int32_t*)malloc(size * sizeof(int32_t));
+    int32_t newsize;
+    int32_t* newarray = cppadvance(size, &newsize, generations, lifearray);
+    int i;
+    string outstring = "{";
+	for (i = 0; i < (newsize/2); i++) {
+		outstring = outstring + "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
+	}
+    outstring = outstring + "}";
+    ofstream outfile("outfile.txt");
+    outfile << outstring;
+}
+}'''
 #For testing purposes:
 if __name__ == '__main__':
     import sys
@@ -138,5 +162,7 @@ if __name__ == '__main__':
         rule = sys.argv[1]
     else:
         rule = 'b3s23'
+    with open(os.path.dirname(__file__)+'/advance.h', 'w', encoding='utf-8') as f:
+        f.write(genadvheader(rule))
     with open(os.path.dirname(__file__)+'/life.cpp', 'w', encoding='utf-8') as f:
-        f.write(gencode(rule))
+        f.write(gencode())

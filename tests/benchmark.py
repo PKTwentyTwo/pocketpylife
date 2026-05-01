@@ -12,11 +12,11 @@ except ImportError:
     from cpplifetree import Lifetree as cpplifetree
 try:
     from ..cythlib.cython_setup import cython_compile
-    cython_compile()
+    cython_compile(False)
     from ..cythlib.cylifetree import Lifetree as cylifetree
 except ImportError:
     from cython_setup import cython_compile
-    cython_compile()
+    cython_compile(False)
     from cylifetree import Lifetree as cylifetree
 try:
     from ..lifetrees.lifetree import Lifetree as lifetree

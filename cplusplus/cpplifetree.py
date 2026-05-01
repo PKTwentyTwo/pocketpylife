@@ -1,12 +1,15 @@
 '''The code for a Lifetree with a much faster C++ algorithm for simulating OT rules.'''
-#Importing modules:
+#Importing modules (a lot of them):
+import ast
 import copy
+import ctypes
 import math
-import urllib.request
 import hashlib
+import os
 import re
 import subprocess
-import os, sys
+import sys
+import urllib.request
 #Other project modules:
 try:
     from ..genera.hensel import RuleHandler
@@ -36,16 +39,10 @@ Requires g++, and requires Cygwin to be registered if on Windows.'''
     def __init__(self, rule='b3s23'):
         self.rulehandler = RuleHandler()
         self.rule = self.rulehandler.canoniserule(rule)
-        if os.path.isdir(cppdir + '/bin'):
-            simfiles = os.listdir(cppdir + '/bin')
-            simfiles = [x for x in simfiles if re.match(rule+'(\\.exe)*', x)]
-        else:
-            simfiles = []
-        if len(simfiles) == 0:
+        simfile = cppdir + '/bin/' + self.rule + '.so'
+        if not os.path.isfile(simfile):
             compilerule(self.rule)
-            simfiles = os.listdir(cppdir + '/bin')
-            simfiles = [x for x in simfiles if re.match(rule+'(\\.exe)*', x)]
-        self.simfile = cppdir + '/bin/' + simfiles[0]
+        self.cdll = ctypes.CDLL(simfile)
         self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
         self.layers = 1
@@ -81,25 +78,25 @@ Requires g++, and requires Cygwin to be registered if on Windows.'''
         for x in grid:
             payload += [str(x[0]).encode('utf-8'), str(x[1]).encode('utf-8')]
         return payload
-    def cppadvance(self, grid, gens, file):
-        '''Advances a grid by making a call to the specified file.'''
-        proc = subprocess.Popen([file], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        payload = self.topayload(grid, gens)
-        for x in payload:
-            proc.stdin.write(x + b'\n')
-            proc.stdin.flush()
-        output = proc.stdout.read().decode('utf-8')
-        output = output.split('\n')
-        newgrid = {}
-        for x in range(len(output) // 2):
-            newgrid[int(output[2*x]), int(output[2*x+1])] = 1
-        proc.terminate()
-        return newgrid
+    def cppadvance(self, grid, gens):
+        '''Advances a grid by making a call to a shared library.'''
+        array = []
+        for x in grid:
+            array.append(x[0])
+            array.append(x[1])
+        carray = (ctypes.c_int32 * len(array))(*array)
+        wd = os.getcwd()
+        os.chdir(cppdir)
+        self.cdll.pyadvance(ctypes.c_int32(len(array)), ctypes.c_int32(gens), carray)
+        os.chdir(wd)
+        with open(cppdir + '/outfile.txt', 'r') as f:
+            newgrid = f.read()
+        return ast.literal_eval(newgrid)
     def advance(self, grid, gens):
         '''Advances a grid, making decisions about which method to use.'''
-        if gens <= 100:
+        if gens <= 10:
             return self.advancenormal(grid, gens)
-        return self.cppadvance(grid, gens, self.simfile)
+        return self.cppadvance(grid, gens)
     def rle_to_grid(self, rle):
         '''Converts an RLE to a dictionary format.'''
         x = 0

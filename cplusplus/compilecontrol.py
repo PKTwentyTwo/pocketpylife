@@ -7,12 +7,12 @@ import time
 try:
     from ..genera.hensel import RuleHandler
     from ..genera.findgenera import getgenera
-    from .gencode import gencode
+    from .gencode import gencode, genadvheader
 except ImportError:
     sys.path.append(os.path.dirname(os.path.dirname(__file__))+'/genera')
     from hensel import RuleHandler
     from findgenera import getgenera
-    from gencode import gencode
+    from gencode import gencode, genadvheader
 if os.name == 'nt':
     try:
         from .mingw import get_mingw_compiler, copydlls
@@ -42,7 +42,11 @@ def isvalid(rule):
     genera = getgenera(rule)
     return genera in ['b3s23life', 'lifelike']
 def compilerule(rule,
-                compilerargs = ['-O3', '-march=native', '-funroll-loops', '-std=c++11']):
+                compilerargs = ['-O3',
+                                '-march=native',
+                                '-funroll-loops',
+                                '-std=c++11',
+                                '-flto']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')
@@ -50,12 +54,15 @@ def compilerule(rule,
     if not os.path.exists(cppdir+'/bin'):
         os.mkdir(cppdir+'/bin')
     #Generate the code:
-    code = gencode(rule)
+    code = genadvheader(rule)
+    with open(cppdir + '/advance.h', 'w', encoding = 'utf-8') as f:
+        f.write(code)
+    code = gencode()
     with open(cppdir + '/life.cpp', 'w', encoding = 'utf-8') as f:
         f.write(code)
     #Write a command to compile the code:
     command = [getcompiler()]
-    command += [cppdir+'/life.cpp', '-o', cppdir+'/bin/'+rule]
+    command += [cppdir+'/life.cpp', '-o', cppdir+'/bin/'+rule+'.so', '-shared', '-fPIC']
     command += compilerargs
     joinedcommand = ''
     for x in command:
@@ -80,3 +87,8 @@ def compilerule(rule,
         sys.stderr.write('Compilation succeeded in '+str(round(time.time() - starttime, 3))+' seconds.\n')
     else:
         raise ValueError('Error occurred during compilation!\n\n' + compiler_stderr.decode('utf-8'))
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        compilerule('b3s23')
+    else:
+        compilerule(sys.argv[1])
