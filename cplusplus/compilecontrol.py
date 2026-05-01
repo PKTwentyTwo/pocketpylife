@@ -15,9 +15,9 @@ except ImportError:
     from gencode import gencode, genadvheader
 if os.name == 'nt':
     try:
-        from .mingw import get_mingw_compiler, copydlls
+        from .mingw import get_mingw_compiler
     except ImportError:
-        from mingw import get_mingw_compiler, copydlls
+        from mingw import get_mingw_compiler
 rh = RuleHandler()
 cppdir = os.path.dirname(__file__)
 def getcompiler():
@@ -44,8 +44,6 @@ def isvalid(rule):
 def compilerule(rule,
                 compilerargs = ['-O3',
                                 '-march=native',
-                                '-funroll-loops',
-                                '-std=c++11',
                                 '-flto']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
@@ -64,6 +62,10 @@ def compilerule(rule,
     command = [getcompiler()]
     command += [cppdir+'/life.cpp', '-o', cppdir+'/bin/'+rule+'.so', '-shared', '-fPIC']
     command += compilerargs
+    if os.name == 'nt':
+        #Required to avoid DLL hell:
+        #https://en.wikipedia.org/wiki/DLL_hell
+        command += ['-static', '-static-libgcc', '-static-libstdc++']
     joinedcommand = ''
     for x in command:
         joinedcommand += x + ' '
@@ -75,8 +77,6 @@ def compilerule(rule,
     else:
         wd = os.getcwd()
     cwd = os.getcwd()
-    if os.name == 'nt':
-        copydlls()
     #Compile the code:
     os.chdir(wd)
     proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)

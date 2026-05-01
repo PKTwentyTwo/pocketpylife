@@ -49,26 +49,6 @@ def get_mingw_compiler():
     if os.path.isfile(compilerloc):
         return os.path.realpath(compilerloc)
     raise FileNotFoundError('mingw does not appear to be installed.\nTry pocketpylife.install_mingw()')
-def copydlls():
-    '''Copies the necessary DLLs across.'''
-    #I now understand and fear the phrase 'DLL hell'.
-    dst = os.path.dirname(glob.glob(cppdir + '/mingw/ucrt64/lib/gcc/x86_64*/*/cc1*.exe')[0])
-    bindir = os.path.realpath(os.path.dirname(get_mingw_compiler()))
-    #Thank goodness for glob.
-    dlls = glob.glob(bindir + '/*.dll') + glob.glob(os.path.dirname(bindir) + '/lib/*.dll')
-    bin2dir = glob.glob(os.path.dirname(bindir) + '/x86*/bin')[0]
-    if not os.path.isdir(cppdir + '/bin'):
-        os.mkdir(cppdir + '/bin')
-    for x in dlls:
-        target = os.path.realpath(bindir + '/' + x)
-        target = target.replace('C:', 'C:\\')
-        shutil.copy(target, dst)
-        try:
-            shutil.copy(target, bindir)
-        except shutil.SameFileError:
-            pass
-        shutil.copy(target, bin2dir)
-        shutil.copy(target, cppdir + '/bin')
 if __name__ == '__main__':
     yesno = input('Install MinGW? (y/n)\n>').lower()
     if yesno == 'y':
