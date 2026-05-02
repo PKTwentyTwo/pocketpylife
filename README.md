@@ -22,14 +22,14 @@ If g++ (and MinGW, if running on Windows) is avaliable, then you can call ```poc
 The C++ code is generated automatically at compilation time, but only outer-totalistic rules are supported.
 
 Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark on my (fairly fast) computer with WSL, the timings were:
-- Pure Python: 116.192 seconds
+- Pure Python: 113.518 seconds
 - Cython:      78.185 seconds (32.7% reduction in time). Compilation: 12 seconds
 - C++:         21.99 seconds (81.1% reduction in time).  Compilation: 0.76 seconds/rule
 
 For Windows using Git Bash, the timings were:
 - Pure Python: 117.533 seconds
-- Cython: 73.647 seconds (37.3% reduction in time).      Compilation: 8.1 seconds (using Microsoft's cl.exe).
-- C++: 12.371 seconds (89.5% reduction in time).         Compilation: 3.1 seconds/rule (MinGW compilers compile slowly but execute much faster than Cygwin.)
+- Cython: 72.102 seconds (38.7% reduction in time).      Compilation: 8.1 seconds (using Microsoft's cl.exe).
+- C++: 4.832 seconds (95.8% reduction in time).         Compilation: 3.6 seconds/rule (MinGW compilers compile slowly but execute much faster than Cygwin.)
 
 For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
 - Pure Python: 252.998 seconds 
