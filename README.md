@@ -25,7 +25,9 @@ Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark o
 - Pure Python: 115.628 seconds
 - Cython:      76.821 seconds (33.6)% reduction in time). Compilation: 11.8 seconds
 - C++:         5.383 seconds (94.3)% reduction in time).  Compilation: 0.67 seconds/rule
+
 Faster speeds may be achieved if clang is used instead of the GCC compilers.
+
 For Windows using Git Bash, the timings were:
 - Pure Python: 117.533 seconds
 - Cython: 72.102 seconds (38.7% reduction in time).      Compilation: 8.1 seconds (using Microsoft's cl.exe).
