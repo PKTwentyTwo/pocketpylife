@@ -2,10 +2,7 @@
 import os
 import subprocess
 from urllib.request import urlretrieve
-import sys
 import zipfile
-import shutil
-import glob
 cppdir = os.path.dirname(__file__)
 rootdir = os.path.dirname(cppdir)
 def install_7z():

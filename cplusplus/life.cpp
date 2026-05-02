@@ -9,7 +9,7 @@
 //The below extern statement is required to load a shared library as a CDLL with ctypes.
 extern "C" {
 using namespace std;
-int32_t* cppadvance(int32_t size, int32_t* newsize, int32_t generations, int32_t lifearray[]) {
+int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, int32_t lifearray[]) {
     //Internal function used for advancing patterns (for other C++ functions).
 	int32_t* newarray = (int32_t*)malloc(size * sizeof(int32_t));
 	int32_t* array = newarray;
@@ -38,7 +38,9 @@ void pyadvance(int32_t size, int32_t generations, int32_t lifearray[]) {
 		outstring = outstring + "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
 	}
     outstring = outstring + "}";
-    ofstream outfile("outfile.txt");
-    outfile << outstring;
+    FILE* outfile;
+    outfile = fopen("outfile.txt", "w");
+    fprintf(outfile, outstring.c_str());
+    fclose(outfile);
 }
 }

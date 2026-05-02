@@ -77,7 +77,7 @@ def cpplifetree(rule='b3s23', force_compile = False):
     '''Creates a new Lifetree using C++ for maximum speed.
 Only works with outer-totalistic rules.
 Requires MinGW on Windows and g++ on POSIX systems.'''
-    if getgenera(rule) not in ['lifelike', 'b3s23life']:
+    if getgenera(rule) not in ['lifelike', 'b3s23life', 'isotropic']:
         raise ValueError('Rule '+rule+' is in genus '+getgenera(rule)+' which is not supported.')
     rule = rh.canoniserule(rule)
     if force_compile:

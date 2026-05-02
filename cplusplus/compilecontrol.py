@@ -32,15 +32,17 @@ Throws an error if compilation is not possible, and otherwise returns the compil
         return get_mingw_compiler()
     #Check that g++ is avaliable:
     try:
-        subprocess.check_output(['/bin/bash', 'which', 'g++']).decode('utf-8').replace('\n', '')
+        compiler = subprocess.check_output(['/bin/bash', 'which', 'c++']).decode('utf-8').replace('\n', '')
     except subprocess.CalledProcessError:
-        raise OSError('''g++ does not appear to be installed on this system.
-Try installing it with: sudo apt install g++''')
-    return 'g++'
+        raise OSError('''A C++ compiler does not appear to be installed on this system.
+Try installing it with: one of the following:
+1. sudo apt install g++
+2. sudo apt install clang''')
+    return compiler
 def isvalid(rule):
     '''Determines whether a rule is valid or not for code generation.'''
     genera = getgenera(rule)
-    return genera in ['b3s23life', 'lifelike']
+    return genera in ['b3s23life', 'lifelike', 'isotropic']
 def compilerule(rule,
                 compilerargs = ['-O3',
                                 '-march=native',
@@ -49,8 +51,8 @@ def compilerule(rule,
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')
     rule = rh.canoniserule(rule)
-    if not os.path.exists(cppdir+'/bin'):
-        os.mkdir(cppdir+'/bin')
+    if not os.path.exists(cppdir+'/lib'):
+        os.mkdir(cppdir+'/lib')
     #Generate the code:
     code = genadvheader(rule)
     with open(cppdir + '/advance.h', 'w', encoding = 'utf-8') as f:
@@ -60,7 +62,7 @@ def compilerule(rule,
         f.write(code)
     #Write a command to compile the code:
     command = [getcompiler()]
-    command += [cppdir+'/life.cpp', '-o', cppdir+'/bin/'+rule+'.so', '-shared', '-fPIC']
+    command += [cppdir+'/life.cpp', '-o', cppdir+'/lib/'+rule+'.so', '-shared', '-fPIC']
     command += compilerargs
     if os.name == 'nt':
         #Required to avoid DLL hell:
@@ -79,10 +81,10 @@ def compilerule(rule,
     cwd = os.getcwd()
     #Compile the code:
     os.chdir(wd)
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd)
+    with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=wd) as proc:
+        compiler_stdout, compiler_stderr = proc.communicate()
+        status = proc.returncode
     os.chdir(cwd)
-    compiler_stdout, compiler_stderr = proc.communicate()
-    status = proc.returncode
     if status == 0:
         sys.stderr.write('Compilation succeeded in '+str(round(time.time() - starttime, 3))+' seconds.\n')
     else:

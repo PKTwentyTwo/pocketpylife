@@ -1,12 +1,9 @@
 '''The code for a Lifetree with a much faster C++ algorithm for simulating OT rules.'''
-#Importing modules (a lot of them):
+#Importing modules:
 import ast
-import copy
 import ctypes
-import math
 import hashlib
 import os
-import re
 import subprocess
 import sys
 import urllib.request
@@ -27,7 +24,7 @@ except ImportError:
     from compilecontrol import compilerule
 try:
     from ..gridops import *
-except:
+except ImportError:
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
     from gridops import *
 #A few global variables:
@@ -35,11 +32,11 @@ CATAGOLUE_URL = 'https://catagolue.hatsya.com'
 cppdir = os.path.dirname(__file__)
 class Lifetree:
     '''Simulates patterns in outer-totalistic rules using automatically generated C++ code.
-Requires g++, and requires Cygwin to be registered if on Windows.'''
+Requires a C++ compiler, and requires MinGW to be installed if on Windows.'''
     def __init__(self, rule='b3s23'):
         self.rulehandler = RuleHandler()
         self.rule = self.rulehandler.canoniserule(rule)
-        simfile = cppdir + '/bin/' + self.rule + '.so'
+        simfile = cppdir + '/lib/' + self.rule + '.so'
         if not os.path.isfile(simfile):
             compilerule(self.rule)
         self.cdll = ctypes.CDLL(simfile)
@@ -89,7 +86,7 @@ Requires g++, and requires Cygwin to be registered if on Windows.'''
         os.chdir(cppdir)
         self.cdll.pyadvance(ctypes.c_int32(len(array)), ctypes.c_int32(gens), carray)
         os.chdir(wd)
-        with open(cppdir + '/outfile.txt', 'r') as f:
+        with open(cppdir + '/outfile.txt', 'r', encoding='utf-8') as f:
             newgrid = f.read()
         return ast.literal_eval(newgrid)
     def advance(self, grid, gens):
@@ -202,7 +199,7 @@ Requires g++, and requires Cygwin to be registered if on Windows.'''
                     if sym in ['8x32']:
                         x = k + 8*(j % 4)
                         y = int(j / 4)
-                    elif sym in ['4x64']:  
+                    elif sym in ['4x64']:
                         x = k + 8*(j % 8)
                         y = int(j / 8)
                     elif sym in ['2x128']:
@@ -296,15 +293,15 @@ Requires g++, and requires Cygwin to be registered if on Windows.'''
         '''Downloads a glider synthesis from Catagolue.'''
         if self.rule != 'b3s23':
             raise ValueError('Can only download syntheses if configured for b3s23.')
-        c = urllib.request.urlopen(CATAGOLUE_URL+'/textsamples/'+apgcode+'/'+'b3s23/synthesis')
-        response = c.read().decode('utf-8')
+        with urllib.request.urlopen(CATAGOLUE_URL+'/textsamples/'+apgcode+'/'+'b3s23/synthesis') as c:
+            response = c.read().decode('utf-8')
         if 'x' in response:
             return response
         return None
     def download_soups(self, apgcode, sym='C1'):
         '''Returns a list of soups producing a target object.'''
-        c = urllib.request.urlopen(CATAGOLUE_URL + '/textsamples/' + apgcode + '/' + self.rule)
-        response = c.read().decode('utf-8')
+        with urllib.request.urlopen(CATAGOLUE_URL + '/textsamples/' + apgcode + '/' + self.rule) as c:
+            response = c.read().decode('utf-8')
         soups = []
         for x in response.split('\n'):
             data = x.split('/')
