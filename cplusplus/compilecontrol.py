@@ -74,7 +74,8 @@ def compilerule(rule,
     joinedcommand = joinedcommand[:-1]
     sys.stderr.write('Attempting compilation with command:\n'+joinedcommand+'\n')
     starttime = time.time()
-    if os.path == 'nt':
+    if os.name == 'nt':
+        print(getcompiler())
         wd = os.path.dirname(getcompiler())
     else:
         wd = os.getcwd()
