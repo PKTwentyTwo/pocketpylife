@@ -13,4 +13,4 @@ if os.name == 'nt':
     from .cplusplus.mingw import install_mingw
     __all__ += ['install_mingw']
 __all__.sort()
-__version__ = '1.3.0'
+__version__ = '1.4.0'
