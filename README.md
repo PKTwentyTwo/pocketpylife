@@ -22,19 +22,19 @@ If g++ (and MinGW, if running on Windows) is avaliable, then you can call ```poc
 The C++ code is generated automatically at compilation time, but only outer-totalistic rules are supported.
 
 Using the methuselah [Lidka](https://conwaylife.com/wiki/Lidka) as a benchmark on my (fairly fast) computer with WSL, the timings were:
-- Pure Python: 113.518 seconds
-- Cython:      78.185 seconds (32.7% reduction in time). Compilation: 12 seconds
-- C++:         21.99 seconds (81.1% reduction in time).  Compilation: 0.76 seconds/rule
-
+- Pure Python: 115.628 seconds
+- Cython:      76.821 seconds (33.6)% reduction in time). Compilation: 11.8 seconds
+- C++:         5.383 seconds (94.3)% reduction in time).  Compilation: 0.67 seconds/rule
+Faster speeds may be achieved if clang is used instead of the GCC compilers.
 For Windows using Git Bash, the timings were:
 - Pure Python: 117.533 seconds
 - Cython: 72.102 seconds (38.7% reduction in time).      Compilation: 8.1 seconds (using Microsoft's cl.exe).
 - C++: 4.832 seconds (95.8% reduction in time).         Compilation: 3.6 seconds/rule (MinGW compilers compile slowly but execute much faster than Cygwin.)
 
-For a Raspberry Pi 5 running Ubuntu Server, tested over an SSH connection:
-- Pure Python: 252.998 seconds 
-- Cython: 182.089 seconds (28.0% reduction in time).     Compilation: 23.5 seconds
-- C++: 51.828 seconds (79.5% reduction in time).         Compilation: 0.96 seconds/rule
+For a Raspberry Pi 5 with 4GB of RAM running Ubuntu Server, tested over an SSH connection:
+- Pure Python: 253.375 seconds 
+- Cython: 183.003 seconds (27.8% reduction in time).     Compilation: 24.316 seconds
+- C++: 9.017 seconds (96.4% reduction in time).         Compilation: 2.54 seconds/rule
 
 Compare these times with the below for an idea of how slow they are:
 - Lifelib: 0.00055 seconds. Compilation: 22 seconds/rule
