@@ -12,7 +12,6 @@ def gencode():
     return '''//High-level functions for manipulating patterns.
 #include <iostream>
 #include "advance.h"
-#include <algorithm>
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -21,7 +20,7 @@ def gencode():
 extern "C" {
 using namespace std;
 int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, int32_t lifearray[]) {
-    //Internal function used for advancing patterns (for other C++ functions).
+    // Internal function used for advancing patterns (for other C++ functions).
 	int32_t* newarray = (int32_t*)malloc(size * sizeof(int32_t));
 	int32_t* array = newarray;
 	int i;
@@ -38,15 +37,15 @@ int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, i
     *newsize = size;
     return newarray;
 }
-void pyadvance(int32_t size, int32_t generations, int32_t lifearray[]) {
-    //Wrapper function for cppadvance() which saves to a file.
+void pyadvance(int32_t size, const int32_t generations, int32_t lifearray[]) {
+    // Wrapper function for cppadvance() which saves to a file.
 	int32_t* array = (int32_t*)malloc(size * sizeof(int32_t));
     int32_t newsize;
     int32_t* newarray = cppadvance(size, &newsize, generations, lifearray);
     int i;
     string outstring = "{";
 	for (i = 0; i < (newsize/2); i++) {
-		outstring = outstring + "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
+		outstring += "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
 	}
     outstring = outstring + "}";
     FILE* outfile;
@@ -66,62 +65,72 @@ def genadvheader(rule):
         else:
             array.append(0)
     array = str(array).replace('[', '{').replace(']', '}')
-    code = '''//Automatically generated C++ header for simulating '''+rule+'''
-#include <iostream>
+    code = '''// Automatically generated C++ header for simulating '''+rule+'''
 #include <cstdint>
 #include <algorithm>
 #include <vector>
 #include <unordered_map>
 int64_t tokey(const int32_t x, const int32_t y) {
+    // Converts an x and y coordinate to a 64-bit key.
 	int64_t key;
 	key = 2147483648 * (x + 1073741824) + y + 1073741824;
 	return key;
 }
 int32_t getx(const int64_t key) {
+    // Extracts the x coordinate from a 64-bit key.
 	int32_t x;
 	x = key >> 31;
-	x = x - 1073741824;
+	x -= 1073741824;
 	return x;
 }
 int32_t gety(const int64_t key) {
+    // Extracts the y coordinate from a 64-bit key.
 	int32_t y;
 	y = key % 2147483648;
-	y = y - 1073741824;
+	y -= 1073741824;
 	return y;
 }
 using namespace std;
-const int conditionset[512];
-const int neighbournum[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
-int32_t* advanceone(const int32_t lifearray[], const int length, int32_t* outlength) {
+// Used for the actual simulation logic.
+// The boolean array's contents will depend upon the rule being simulated.
+const bool conditionset[512];
+// Saves time calculating exponents later:
+const int16_t neighbournum[9] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
+int32_t* advanceone(const int32_t lifearray[], const uint32_t length, int32_t* outlength) {
+    // Advances an array of coordinates by one generation, returning a pointer to the new array.
 	int i;
     int64_t key;
+    //An unordered map is the best container for the job here.
+    //However, the third party robin_hood::unordered_map is much faster.
 	unordered_map<int64_t, int> neighbours = {};
 	neighbours.reserve(9 * (length / 2));
-	int32_t dx, dy, x, y;
+	int32_t x, y;
+    int8_t dx, dy;
+    // Calculating neighbours:
 	for (i = 0; i < (length / 2); i++) {
         x = lifearray[2*i];
         y = lifearray[2*i+1];
 		for (dx = 0; dx < 3; dx++) {
 			for (dy = 0; dy < 3; dy++) {
-				key = tokey(x + dx - 1, y + dy - 1);
-				neighbours[key] = neighbours[key] + neighbournum[3*dy + dx];
+				neighbours[tokey(x + dx - 1, y + dy - 1)] += neighbournum[3*dy + dx];
 			}
 		}
 	}
-	int numneighbours;
+	int16_t numneighbours;
     int32_t newarraypos = 0;
-    int64_t newkey;
-	vector<int32_t> newarray = {};
+    // A std::vector is temporarily used to store the new live cells.
+	vector<int32_t> newarray;
     newarray.reserve(neighbours.size() * 2);
 	for (auto i : neighbours) {
-		newkey = i.first;
-		numneighbours = neighbours[newkey];
+		key = i.first;
+		numneighbours = i.second;
         if (conditionset[numneighbours]) {
-			newarray.push_back(getx(newkey));
-			newarray.push_back(gety(newkey));
-			newarraypos = newarraypos + 2;
+			newarray.push_back(getx(key));
+			newarray.push_back(gety(key));
+			newarraypos += 2;
         }
 	}
+    // Copying them over to a new array:
 	int32_t* newarray2 = (int32_t*)malloc(newarraypos * sizeof(int32_t));
 	for (i = 0; i < newarraypos; i++) {
 		newarray2[i] = newarray[i];
@@ -129,7 +138,7 @@ int32_t* advanceone(const int32_t lifearray[], const int length, int32_t* outlen
 	*outlength = newarraypos;
 	return newarray2;
 }'''
-    code = code.replace('int conditionset[512];', 'int conditionset[512] = ' + array+';') 
+    code = code.replace('bool conditionset[512];', 'bool conditionset[512] = ' + array+';') 
     if os.path.isfile(os.path.dirname(__file__) + '/includes/robin_hood.h'):
         code = code.replace('<unordered_map>', '\"includes/robin_hood.h\"')
         code = code.replace('unordered_map', 'robin_hood::unordered_map')

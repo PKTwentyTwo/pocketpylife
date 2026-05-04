@@ -1,7 +1,6 @@
 //High-level functions for manipulating patterns.
 #include <iostream>
 #include "advance.h"
-#include <algorithm>
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -10,7 +9,7 @@
 extern "C" {
 using namespace std;
 int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, int32_t lifearray[]) {
-    //Internal function used for advancing patterns (for other C++ functions).
+    // Internal function used for advancing patterns (for other C++ functions).
 	int32_t* newarray = (int32_t*)malloc(size * sizeof(int32_t));
 	int32_t* array = newarray;
 	int i;
@@ -27,15 +26,15 @@ int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, i
     *newsize = size;
     return newarray;
 }
-void pyadvance(int32_t size, int32_t generations, int32_t lifearray[]) {
-    //Wrapper function for cppadvance() which saves to a file.
+void pyadvance(int32_t size, const int32_t generations, int32_t lifearray[]) {
+    // Wrapper function for cppadvance() which saves to a file.
 	int32_t* array = (int32_t*)malloc(size * sizeof(int32_t));
     int32_t newsize;
     int32_t* newarray = cppadvance(size, &newsize, generations, lifearray);
     int i;
     string outstring = "{";
 	for (i = 0; i < (newsize/2); i++) {
-		outstring = outstring + "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
+		outstring += "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
 	}
     outstring = outstring + "}";
     FILE* outfile;
