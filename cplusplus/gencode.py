@@ -17,7 +17,6 @@ def gencode():
 #include <string>
 #include <fstream>
 //The below extern statement is required to load a shared library as a CDLL with ctypes.
-extern "C" {
 using namespace std;
 int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, int32_t lifearray[]) {
     // Internal function used for advancing patterns (for other C++ functions).
@@ -37,9 +36,9 @@ int32_t* cppadvance(int32_t size, int32_t* newsize, const int32_t generations, i
     *newsize = size;
     return newarray;
 }
-void pyadvance(int32_t size, const int32_t generations, int32_t lifearray[]) {
+extern "C" {
+void pyadvance(int32_t size, const int32_t generations, int32_t lifearray[], int32_t filenum) {
     // Wrapper function for cppadvance() which saves to a file.
-	int32_t* array = (int32_t*)malloc(size * sizeof(int32_t));
     int32_t newsize;
     int32_t* newarray = cppadvance(size, &newsize, generations, lifearray);
     int i;
@@ -47,11 +46,12 @@ void pyadvance(int32_t size, const int32_t generations, int32_t lifearray[]) {
 	for (i = 0; i < (newsize/2); i++) {
 		outstring += "(" + to_string(newarray[2*i]) + "," + to_string(newarray[2*i+1]) + "):1,";
 	}
+    free(newarray);
     outstring = outstring + "}";
-    FILE* outfile;
-    outfile = fopen("outfile.txt", "w");
-    fprintf(outfile, outstring.c_str());
-    fclose(outfile);
+    string filename = "outfile" + to_string(filenum) + ".txt";
+    ofstream outfile(filename);
+    outfile << outstring;
+    outfile.close();
 }
 }'''
 def genadvheader(rule):
@@ -122,9 +122,9 @@ int32_t* advanceone(const int32_t lifearray[], const uint32_t length, int32_t* o
 	vector<int32_t> newarray;
     newarray.reserve(neighbours.size() * 2);
 	for (auto i : neighbours) {
-		key = i.first;
 		numneighbours = i.second;
         if (conditionset[numneighbours]) {
+		    key = i.first;
 			newarray.push_back(getx(key));
 			newarray.push_back(gety(key));
 			newarraypos += 2;

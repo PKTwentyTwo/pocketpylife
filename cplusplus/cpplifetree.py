@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import urllib.request
+import random
 #Other project modules:
 try:
     from ..genera.hensel import RuleHandler
@@ -40,41 +41,8 @@ Requires a C++ compiler, and requires MinGW to be installed if on Windows.'''
         if not os.path.isfile(simfile):
             compilerule(self.rule)
         self.cdll = ctypes.CDLL(simfile)
-        self.conditionset = self.rulehandler.makeconditionset(self.rule)
         self.__file__ = __file__
         self.layers = 1
-    def getneighbours(self, grid):
-        '''For each cell with at least one live neighbour, get a 9-bit integer.'''
-        neighbours = {}
-        for x in grid:
-            xcor, ycor = x[0], x[1]
-            for a in range(3):
-                for b in range(3):
-                    coord = (xcor + a - 1, ycor + b - 1)
-                    if coord not in neighbours:
-                        neighbours[coord] = 0
-                    neighbours[coord] += 2**(8 - 3 * b - a)
-        return neighbours
-    def advanceone(self, grid):
-        '''Advance a grid of cells by one generation.'''
-        neighbours = self.getneighbours(grid)
-        newgrid = {}
-        for x in neighbours:
-            if neighbours[x] in self.conditionset:
-                newgrid[x] = 1
-        return newgrid
-    def advancenormal(self, grid, gens):
-        '''Advance a grid a specific number of generations.'''
-        adv = self.advanceone
-        for _ in range(gens):
-            grid = adv(grid)
-        return grid
-    def topayload(self, grid, gens):
-        '''Converts a grid to payload.'''
-        payload = [str(len(grid)*2).encode('utf-8'), str(gens).encode('utf-8')]
-        for x in grid:
-            payload += [str(x[0]).encode('utf-8'), str(x[1]).encode('utf-8')]
-        return payload
     def cppadvance(self, grid, gens):
         '''Advances a grid by making a call to a shared library.'''
         array = []
@@ -84,15 +52,15 @@ Requires a C++ compiler, and requires MinGW to be installed if on Windows.'''
         carray = (ctypes.c_int32 * len(array))(*array)
         wd = os.getcwd()
         os.chdir(cppdir)
-        self.cdll.pyadvance(ctypes.c_int32(len(array)), ctypes.c_int32(gens), carray)
+        filenum = random.randint(0, 2**31 - 1)
+        self.cdll.pyadvance(ctypes.c_int32(len(array)), ctypes.c_int32(gens), carray, ctypes.c_int32(filenum))
         os.chdir(wd)
-        with open(cppdir + '/outfile.txt', 'r', encoding='utf-8') as f:
+        with open(cppdir + '/outfile' + str(filenum)+'.txt', 'r', encoding='utf-8') as f:
             newgrid = f.read()
+        os.remove(cppdir + '/outfile' + str(filenum) + '.txt')
         return ast.literal_eval(newgrid)
     def advance(self, grid, gens):
-        '''Advances a grid, making decisions about which method to use.'''
-        if gens <= 10:
-            return self.advancenormal(grid, gens)
+        '''Advances a grid.'''
         return self.cppadvance(grid, gens)
     def rle_to_grid(self, rle):
         '''Converts an RLE to a dictionary format.'''

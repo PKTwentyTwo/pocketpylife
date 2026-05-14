@@ -55,9 +55,9 @@ int32_t* advanceone(const int32_t lifearray[], const uint32_t length, int32_t* o
 	vector<int32_t> newarray;
     newarray.reserve(neighbours.size() * 2);
 	for (auto i : neighbours) {
-		key = i.first;
 		numneighbours = i.second;
         if (conditionset[numneighbours]) {
+		    key = i.first;
 			newarray.push_back(getx(key));
 			newarray.push_back(gety(key));
 			newarraypos += 2;

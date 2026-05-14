@@ -1,6 +1,5 @@
 '''Responsible for dealing with C++ compilation.'''
 import os
-import struct
 import subprocess
 import sys
 import time
@@ -23,10 +22,6 @@ cppdir = os.path.dirname(__file__)
 def getcompiler():
     '''Determines if it is feasible to compile in the current working environment.
 Throws an error if compilation is not possible, and otherwise returns the compiler.'''
-    #Check if the architecture is 64-bit:
-    numbits = 8 * struct.calcsize("P")
-    if numbits != 64:
-        raise OSError('C++ bindings are currently not avaliable for '+str(numbits)+'-bit systems.')
     #Use mingw64 on Windows:
     if os.name == 'nt':
         return get_mingw_compiler()
@@ -34,6 +29,12 @@ Throws an error if compilation is not possible, and otherwise returns the compil
     try:
         compiler = subprocess.check_output(['/bin/bash', 'which', 'c++']).decode('utf-8').replace('\n', '')
     except subprocess.CalledProcessError:
+        #Search on PATH:
+        for x in sys.path:
+            file = x + '/c++'
+            if os.path.isfile(file):
+                if os.access(file, os.X_OK):
+                    return x + '/c++'
         raise OSError('''A C++ compiler does not appear to be installed on this system.
 Try installing it with: one of the following:
 1. sudo apt install g++
