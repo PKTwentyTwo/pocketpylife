@@ -47,9 +47,7 @@ def isvalid(rule):
 def compilerule(rule,
                 compilerargs = ['-O3',
                                 '-Ofast',
-                                '-flto',
-                                '-funroll-loops',
-                                '-ffast-math']):
+                                '-flto']):
     '''Generates and compiles code for a given rule.'''
     if not isvalid(rule):
         raise ValueError('Rule '+rule+' belongs to genus \''+getgenera(rule)+'\' and cannot be compiled.')

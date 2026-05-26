@@ -43,7 +43,7 @@ Compare these times with the below for an idea of how slow they are:
 ## License and credits
 The module is licensed under the permissive [MIT license](LICENSE).
 
-The header file [robin_hood.h](cplusplus/includes/robin_hood.h) is taken from [martinus's robin_hood_hashing](https://github.com/martinus/robin-hood-hashing), which is licensed under a separate MIT license. It is not essential; the C++ code generator will default to ```std::unordered_map``` if no header file is found.
+The header file [unordered_dense.h](cplusplus/includes/unordered_dense.h) and its dependency stl.h are taken from [martinus's unordered_dense](https://github.com/martinus/unordered_dense), which is licensed under a separate MIT license. It is not essential; the C++ code generator will default to ```std::unordered_map``` if no header file is found.
 
 MinGW and 7-Zip are downloaded on Windows when compiling but are not included by default. The latter falls under an LGPL license, while the former contains GPL, LGPL, and other copyleft/permissive licensed components.
 

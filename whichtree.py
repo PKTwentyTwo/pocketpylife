@@ -81,13 +81,13 @@ Requires MinGW on Windows and g++ on POSIX systems.'''
         raise ValueError('Rule '+rule+' is in genus '+getgenera(rule)+' which is not supported.')
     rule = rh.canoniserule(rule)
     if force_compile:
-        if os.path.exists(rootdir + '/cplusplus/bin'):
-            files = os.listdir(rootdir + '/cplusplus/bin')
+        if os.path.exists(rootdir + '/cplusplus/lib'):
+            files = os.listdir(rootdir + '/cplusplus/lib')
         else:
             files = []
         for x in files:
-            if x in [rule, rule + '.exe']:
-                os.remove(rootdir + '/cplusplus/bin/' + x)
+            if x in [rule, rule + '.so']:
+                os.remove(rootdir + '/cplusplus/lib/' + x)
     lt = cppLifetree(rule)
     lt.genera = getgenera(rule)
     return lt

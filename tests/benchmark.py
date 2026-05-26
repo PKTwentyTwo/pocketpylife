@@ -32,6 +32,6 @@ def test(lt, name):
     print(evpt.population)
     timetaken = time.time() - starttime
     print(name + ' finished testing in '+str(round(timetaken, 3))+' seconds.')
-#test(lifetree(), 'pylifetree')
-#test(cylifetree(), 'cylifetree')
+test(lifetree(), 'pylifetree')
+test(cylifetree(), 'cylifetree')
 test(cpplifetree(),'c++lifetree')
